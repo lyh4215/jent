@@ -6,9 +6,16 @@ class FailureClassifier {
     if (exitCode == 124) {
       return "TIMEOUT"
     }
-    if (stderr.contains("network") || stderr.contains("timeout")) {
+
+    if (stderr?.toLowerCase()?.contains("network") ||
+        stderr?.toLowerCase()?.contains("timeout")) {
       return "INFRA"
     }
-    return "CODE"
+
+    if (exitCode != 0) {
+      return "CODE"
+    }
+
+    return "SUCCESS"
   }
 }
