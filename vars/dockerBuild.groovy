@@ -1,20 +1,37 @@
-def call() {
-  def stderr = ""
-  def exitCode = 0
+//dockerBuild.groovy
+import org.company.ci.RetryPolicy
 
-  try {
-    sh 'docker build -t app .'
-  } catch (err) {
-    stderr = err.getMessage()
-    exitCode = 1
+def call(Map args = [:]) {
+  def image = args.image
+  def tag   = args.get('tag', 'latest')
+
+  if (!image) {
+    error("dockerBuild: image is required")
   }
 
-  def failType = org.company.ci.FailureClassifier.classify(exitCode, stderr)
-  def retries = org.company.ci.RetryPolicy.retryCount(failType)
+  withCredentials([usernamePassword(
+          credentialsId: 'docker-pat',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+    sh '''
+      echo "$DOCKER_PASS" | docker login \
+        -u "$DOCKER_USER" --password-stdin
+    '''
 
-  retry(retries) {
-    if (exitCode != 0) {
-      error("Build failed: ${failType}")
+    def buildCode = sh(
+      script: "docker build -t ${image}:${tag} .",
+      returnStatus: true
+    )
+
+    if (buildCode != 0) {
+      error("docker build failed")
+    }
+
+    def retries = RetryPolicy.retryCount("INFRA") // 예시
+
+    retry(retries) {
+      sh "docker push ${image}:${tag}"
     }
   }
 }
