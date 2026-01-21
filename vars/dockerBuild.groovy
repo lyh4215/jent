@@ -18,7 +18,7 @@ def call(Map args = [:]) {
       echo "$DOCKER_PASS" | docker login \
         -u "$DOCKER_USER" --password-stdin
     '''
-
+    
     def buildCode = sh(
       script: "docker build -t ${image}:${tag} .",
       returnStatus: true
