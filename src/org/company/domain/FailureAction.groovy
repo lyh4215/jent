@@ -7,11 +7,15 @@ enum FailureAction {
   SKIP        // 그냥 통과
 
 
-  static List<String> names() {
-    def result = []
-    for (FailureAction p : values()) {
-      result.add(p.name())
+  static InjectionPoint from(String raw) {
+    if (!raw) {
+      return SKIP
     }
-    return result
+
+    try {
+      return valueOf(raw.trim().toUpperCase())
+    } catch (IllegalArgumentException e) {
+      return SKIP
+    }
   }
 }

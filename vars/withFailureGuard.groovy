@@ -7,10 +7,10 @@ def call(
   Closure body
 ) {
   InjectionPoint failAt =
-    InjectionPoint.valueOf(params.FAIL_AT)
+    InjectionPoint.from(params.FAIL_AT)
 
   FailureAction action =
-    FailureAction.valueOf(params.FAIL_ACTION)
+    FailureAction.from(params.FAIL_ACTION)
 
   def policy = new ParamFailurePolicy(failAt, action)
   def guard  = new FailureGuard(this, policy)

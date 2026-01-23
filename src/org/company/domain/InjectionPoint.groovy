@@ -8,11 +8,15 @@ enum InjectionPoint {
   DEPLOY,
   VERIFY
 
-  static List<String> names() {
-      def result = []
-      for (InjectionPoint p : values()) {
-        result.add(p.name())
-      }
-      return result
+  static InjectionPoint from(String raw) {
+    if (!raw) {
+      return NONE
     }
+
+    try {
+      return valueOf(raw.trim().toUpperCase())
+    } catch (IllegalArgumentException e) {
+      return NONE
+    }
+  }
 }
