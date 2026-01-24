@@ -1,6 +1,6 @@
 //vars/pythonCiTest.groovy
 import org.company.features.stageAllowable.*
-
+import org.company.domain.FailureType
 def call() {
 
     stage('FastAPI Import Test') {
@@ -8,9 +8,18 @@ def call() {
     }
 
     StageGate.stageIfAllowed(this, 'PR Checks', new PullRequestPolicy()) {
-        pythonPrTests()
-        pythonArchiveCoverage()
-        pythonRecordCoverage(true)
+        FailableGuard.run(this,
+            new FailureContext(
+                FailureType.TEST,
+                'PR Checks',
+                'PR Tests Failed',
+                false
+            )
+        ) {
+            pythonPrTests()
+            pythonArchiveCoverage()
+            pythonRecordCoverage(true)
+        }
     }
 
     StageGate.stageIfAllowed(this, 'Main Branch Tests & Coverage', 
@@ -18,11 +27,20 @@ def call() {
             new NotPullRequestPolicy(),
             new MainBranchPolicy()
         )) {
-        pythonMainTests()
-        pythonArchiveCoverage()
-        pythonRecordCoverage(false)
+        FailableGuard.run(this,
+            new FailureContext(
+                FailureType.TEST,
+                'Main Branch Tests & Coverage',
+                'Main Branch Tests Failed',
+                false
+            )
+        ) {
+            pythonMainTests()
+            pythonArchiveCoverage()
+            pythonRecordCoverage(false)
 
-        junit 'reports/junit.xml'
+            junit 'reports/junit.xml'
+        }
     }
 
     StageGate.stageIfAllowed(this, 'Comment Coverage to PR', new PullRequestPolicy())  {
