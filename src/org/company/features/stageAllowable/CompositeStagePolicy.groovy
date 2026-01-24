@@ -1,9 +1,9 @@
-package org.company.policy
+package org.company.features.stageAllowable
 
-class AllOfPolicy implements StagePolicy {
+class CompositeStagePolicy implements StagePolicy {
     List<StagePolicy> policies
 
-    AllOfPolicy(List<StagePolicy> policies) {
+    CompositeStagePolicy(List<StagePolicy> policies) {
         this.policies = policies
     }
 

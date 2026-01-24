@@ -1,8 +1,7 @@
-import org.company.policy.AllOfPolicy
 import org.company.features.stageAllowable.*
 
 def deploy() {
-    return new AllOfPolicy([
+    return new CompositeStagePolicy([
         new CiEnabledPolicy(),
         new MainBranchPolicy(),
         new NotPullRequestPolicy(),
@@ -11,20 +10,20 @@ def deploy() {
 }
 
 def build() {
-    return new AllOfPolicy([
+    return new CompositeStagePolicy([
         new CiEnabledPolicy(),
         new MainBranchPolicy()
     ])
 }
 
 def test() {
-    return new AllOfPolicy([
+    return new CompositeStagePolicy([
         new CiEnabledPolicy()
     ])
 }
 
 def previewBuild() {
-    return new AllOfPolicy([
+    return new CompositeStagePolicy([
         new CiEnabledPolicy(),
         new PreviewPolicy()
     ])

@@ -1,4 +1,5 @@
 //vars/pythonCiTest.groovy
+import org.company.features.stageAllowable.*
 
 def call() {
 
@@ -6,29 +7,24 @@ def call() {
         pythonImportCheck()
     }
 
-    if (env.IS_PR == 'true') {
-        stage('PR Checks') {
-            pythonPrTests()
-            pythonArchiveCoverage()
-            pythonRecordCoverage(true)
-        }
+    StageGate.stageIfAllowed(this, 'PR Checks', [new PullRequestPolicy()]) {
+        pythonPrTests()
+        pythonArchiveCoverage()
+        pythonRecordCoverage(true)
     }
 
-    if (env.BRANCH_NAME == 'main' && env.IS_PR == 'false') {
-        stage('Main Branch Tests & Coverage') {
-            pythonMainTests()
-            pythonArchiveCoverage()
-            pythonRecordCoverage(false)
-        }
+    StageGate.stageIfAllowed(this, 'Main Branch Tests & Coverage', [
+            new NotPullRequestPolicy(),
+            new MainBranchPolicy()
+        ]) {
+        pythonMainTests()
+        pythonArchiveCoverage()
+        pythonRecordCoverage(false)
 
-        stage('Test Report') {
-            junit 'reports/junit.xml'
-        }
+        junit 'reports/junit.xml'
     }
 
-    if (env.IS_PR == 'true') {
-        stage('Comment Coverage to PR') {
-            githubCommentCoverage()
-        }
+    StageGate.stageIfAllowed(this, 'Comment Coverage to PR', [new PullRequestPolicy()])  {
+        githubCommentCoverage()
     }
 }
