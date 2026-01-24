@@ -1,4 +1,4 @@
-package org.company.domain
+package org.company.features.failureInjection
 
 enum InjectionPoint {
   NONE,

@@ -1,5 +1,4 @@
-// src/org/company/ci/policy/ParamFailurePolicy.groovy
-package org.company.policy
+package org.company.features.failureInjection
 
 import org.company.domain.*
 

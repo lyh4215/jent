@@ -1,8 +1,5 @@
 import org.company.policy.AllOfPolicy
-import org.company.policy.CiEnabledPolicy
-import org.company.policy.MainBranchPolicy
-import org.company.policy.NotPullRequestPolicy
-import org.company.policy.PreviewPolicy
+import org.company.features.stageAllowable.*
 
 def deploy() {
     return new AllOfPolicy([

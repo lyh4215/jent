@@ -1,4 +1,4 @@
-package org.company.policy
+package org.company.features.stageAllowable
 
 class NotPullRequestPolicy implements StagePolicy {
     boolean isAllowed(script) {

@@ -1,6 +1,6 @@
 import org.company.domain.*
 import org.company.policy.*
-import org.company.guard.*
+import org.company.features.failureInjection.*
 
 def call(
   InjectionPoint point,
