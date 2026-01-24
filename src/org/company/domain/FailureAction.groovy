@@ -7,7 +7,7 @@ enum FailureAction {
   SKIP        // 그냥 통과
 
 
-  static InjectionPoint from(String raw) {
+  static FailureAction from(String raw) {
     if (!raw) {
       return SKIP
     }

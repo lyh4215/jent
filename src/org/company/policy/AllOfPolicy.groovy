@@ -1,7 +1,5 @@
 package org.company.policy
 
-import org.company.policy.StagePolicy
-
 class AllOfPolicy implements StagePolicy {
     List<StagePolicy> policies
 

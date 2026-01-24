@@ -1,6 +1,7 @@
 package org.company.features.failureInjection
 
 import org.company.domain.*
+import org.company.policy.FailurePolicy
 
 class ParamFailurePolicy implements FailurePolicy {
 
