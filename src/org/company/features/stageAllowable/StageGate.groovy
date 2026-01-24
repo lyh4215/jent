@@ -15,7 +15,7 @@ class StageGate implements Serializable {
     ) {
         StagePolicy policy = new CompositeStagePolicy(policies)
 
-        if (policy.isAllowed()) {
+        if (policy.isAllowed(script)) {
             script.stage(stageName) {
                 body.call()
             }
