@@ -1,4 +1,4 @@
-package org.company.features.stageAllowable.gate
+package org.company.features.stageAllowable
 
 import org.company.policy.StagePolicy
 

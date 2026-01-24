@@ -1,5 +1,7 @@
 package org.company.features.stageAllowable
 
+import org.company.policy.StagePolicy
+
 class CompositeStagePolicy implements StagePolicy {
     List<StagePolicy> policies
 
