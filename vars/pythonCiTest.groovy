@@ -7,16 +7,17 @@ def call() {
         pythonImportCheck()
     }
 
-    StageGate.stageIfAllowed(this, 'PR Checks', [new PullRequestPolicy()]) {
+    StageGate.stageIfAllowed(this, 'PR Checks', new PullRequestPolicy()) {
         pythonPrTests()
         pythonArchiveCoverage()
         pythonRecordCoverage(true)
     }
 
-    StageGate.stageIfAllowed(this, 'Main Branch Tests & Coverage', [
+    StageGate.stageIfAllowed(this, 'Main Branch Tests & Coverage', 
+        StagePolicy.and(
             new NotPullRequestPolicy(),
             new MainBranchPolicy()
-        ]) {
+        )) {
         pythonMainTests()
         pythonArchiveCoverage()
         pythonRecordCoverage(false)
@@ -24,7 +25,7 @@ def call() {
         junit 'reports/junit.xml'
     }
 
-    StageGate.stageIfAllowed(this, 'Comment Coverage to PR', [new PullRequestPolicy()])  {
+    StageGate.stageIfAllowed(this, 'Comment Coverage to PR', new PullRequestPolicy())  {
         githubCommentCoverage()
     }
 }

@@ -1,30 +1,28 @@
 import org.company.features.stageAllowable.*
 
 def deploy() {
-    return new CompositeStagePolicy([
+    return StagePolicy.and(
         new CiEnabledPolicy(),
         new MainBranchPolicy(),
         new NotPullRequestPolicy(),
         new PreviewPolicy()
-    ])
+    )
 }
 
 def build() {
-    return new CompositeStagePolicy([
+    return StagePolicy.and(
         new CiEnabledPolicy(),
         new MainBranchPolicy()
-    ])
+    )
 }
 
 def test() {
-    return new CompositeStagePolicy([
-        new CiEnabledPolicy()
-    ])
+    return new CiEnabledPolicy()
 }
 
 def previewBuild() {
-    return new CompositeStagePolicy([
+    return StagePolicy.and(
         new CiEnabledPolicy(),
         new PreviewPolicy()
-    ])
+    )
 }
