@@ -1,5 +1,7 @@
 package org.company.context
 
+import org.company.domain.FailureType
+
 /**
  * FailureContext
  *
