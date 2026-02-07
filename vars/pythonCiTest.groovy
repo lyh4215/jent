@@ -1,6 +1,8 @@
 //vars/pythonCiTest.groovy
 import org.company.features.stageAllowable.*
 import org.company.domain.FailureType
+import org.company.context.*
+
 def call() {
 
     stage('FastAPI Import Test') {
