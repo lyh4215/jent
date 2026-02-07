@@ -5,4 +5,9 @@ class PullRequestPolicy extends StagePolicy {
     boolean isAllowed(script) {
         return script.env.IS_PR == 'true'
     }
+
+    @Override
+    String reason() {
+        return "This is not a pull request"
+    }
 }
