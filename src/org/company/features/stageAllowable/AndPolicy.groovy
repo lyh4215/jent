@@ -1,7 +1,7 @@
 // src/org/company/features/stageAllowable/AndPolicy.groovy
 package org.company.features.stageAllowable
 
-class AndPolicy implements StagePolicy {
+class AndPolicy extends StagePolicy {
 
     List<StagePolicy> policies
 

@@ -1,12 +1,12 @@
 package org.company.features.stageAllowable
 
-interface StagePolicy extends Serializable {
-    boolean isAllowed(script)
+abstract class StagePolicy implements Serializable {
+    abstract boolean isAllowed(script)
 
     /**
      * 조건이 false일 때 왜 실패했는지 설명
      */
-    String reason()
+    abstract String reason()
 
     /* ===== DSL Factory ===== */
 

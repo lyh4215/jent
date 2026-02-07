@@ -1,10 +1,12 @@
 package org.company.features.stageAllowable
 
-class PreviewPolicy implements StagePolicy {
+class PreviewPolicy extends StagePolicy {
+    @Override
     boolean isAllowed(script) {
         return script.env.IS_PREVIEW == 'true'
     }
 
+    @Override
     String reason() {
         return "Not in preview mode"
     }

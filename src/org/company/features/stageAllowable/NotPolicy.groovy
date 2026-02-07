@@ -1,7 +1,7 @@
 // src/org/company/features/stageAllowable/NotPolicy.groovy
 package org.company.features.stageAllowable
 
-class NotPolicy implements StagePolicy {
+class NotPolicy extends StagePolicy {
 
     StagePolicy policy
 
