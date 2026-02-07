@@ -1,4 +1,5 @@
 package org.company.util
+import org.company.domain.FailureType
 
 class Failure {
 
