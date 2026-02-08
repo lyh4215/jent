@@ -1,4 +1,6 @@
-package org.company.features.stageAllowable
+package org.company.features.stageAllowable.conditions
+
+import org.company.features.stageAllowable.StagePolicy
 
 class MainBranchPolicy extends StagePolicy {
 
