@@ -5,16 +5,18 @@ import org.company.util.Failure
 
 class FailableGuard {
 
-    static void run(
-        def script,
-        FailureContext baseContext,
-        Closure body
-    ) {
-        try {
-            body.call()
-        } catch (Exception e) {
-            FailureContext ctx = baseContext.withException(e)
-            Failure.fail(script, ctx)
-        }
+    static FailureContext begin(def script, FailureContext base) {
+        script.echo "[INFO] enter failable guard: ${base.summary()}"
+        return base
+    }
+
+    static void fail(def script, FailureContext base, Throwable t) {
+        script.echo "[INFO] failable guard caught: ${t.getClass().getSimpleName()}"
+        Failure.fail(script, base.withException(t))
+    }
+
+    static void end(def script, FailureContext base) {
+        // 필요하면 마무리(메트릭/로그) 추가
+        script.echo "[INFO] exit failable guard: ${base.summary()}"
     }
 }
