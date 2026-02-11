@@ -5,13 +5,21 @@ class FailureRegistry {
     private static Map<String, List<FailureAction>> handlers = [:]
 
     static void addFailureHandler(String stageId, FailureAction action) {
-        handlers.computeIfAbsent(stageId) { [] }.add(action)
+        if (!handlers.containsKey(stageId)) {
+            handlers[stageId] = []
+        }
+        handlers[stageId] << action
     }
 
     static void execute(String stageId, def script, Exception e) {
         def ctx = new FailureContext(stageId: stageId, exception: e)
 
-        handlers.getOrDefault(stageId, []).each { action ->
+        def actions = handlers[stageId]
+        if (actions == null) {
+            return
+        }
+
+        for (FailureAction action : actions) {
             action.execute(script, ctx)
         }
     }
