@@ -1,14 +1,21 @@
 import org.company.failure.FailureRegistry
 
+// stage-specific
 def call(String stageId, Object action) {
+    def instance = resolveAction(action)
+    FailureRegistry.addFailureHandler(stageId, instance)
+}
 
-    def actionInstance
+// global
+def call(Object action) {
+    def instance = resolveAction(action)
+    FailureRegistry.addGlobalFailureHandler(instance)
+}
 
+// 내부 유틸
+private def resolveAction(Object action) {
     if (action instanceof Class) {
-        actionInstance = action.newInstance()
-    } else {
-        actionInstance = action
+        return action.newInstance()
     }
-
-    FailureRegistry.addFailureHandler(stageId, actionInstance)
+    return action
 }
