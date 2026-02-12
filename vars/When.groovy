@@ -1,4 +1,4 @@
-import org.company.pipeline.when.WhenPolicy
+import org.company.when.WhenPolicy
 
 def call(Object policyObj, Closure body) {
 
