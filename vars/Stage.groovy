@@ -1,41 +1,17 @@
-import org.company.when.WhenPolicy
+import org.company.when.SkipStageException
+import org.company.failure.FailureRegistry
 
-def call(String id, Map opts = [:], Closure body) {
-
-    boolean skip = false
-
-    if (opts.when) {
-        def policy = resolvePolicy(opts.when)
-        skip = !policy.allows(this)
-    }
+def call(String id, Closure body) {
 
     stage(id) {
-
-        if (skip) {
-            echo "⏭ Skipped by When"
-            return
-        }
-
         try {
             body.call()
+        } catch (SkipStageException se) {
+            // ✅ 스킵은 실패 훅/실패 처리 대상이 아님
+            return
         } catch (Exception e) {
             FailureRegistry.execute(id, this, e)
             throw e
         }
     }
-}
-
-private WhenPolicy resolvePolicy(Object obj) {
-
-    if (obj instanceof Class) {
-        return obj.newInstance()
-    }
-
-    if (obj instanceof WhenPolicy) {
-        return obj
-    }
-
-    throw new IllegalArgumentException(
-        "When requires a WhenPolicy class or instance"
-    )
 }
