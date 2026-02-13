@@ -2,30 +2,30 @@ package org.company.failure
 
 class FailureRegistry {
 
-    private static Map<String, List<FailureAction>> handlers = [:]
-    private static List<FailureAction> globalHandlers = []
-
-    static void addFailureHandler(String stageId, FailureAction action) {
-        if (!handlers.containsKey(stageId)) {
-            handlers[stageId] = []
+    static void addFailureHandler(def script, String stageId, FailureAction action) {
+        def state = FailureRegistryState.get(script)
+        if (!state.handlers.containsKey(stageId)) {
+            state.handlers[stageId] = []
         }
-        handlers[stageId] << action
+        state.handlers[stageId] << action
     }
 
-    static void addGlobalFailureHandler(FailureAction action) {
-        globalHandlers << action
+    static void addGlobalFailureHandler(def script, FailureAction action) {
+        def state = FailureRegistryState.get(script)
+        state.globalHandlers << action
     }
 
-    static void execute(String stageId, def script, Exception e) {
+    static void execute(def script, String stageId, Exception e) {
+        def state = FailureRegistryState.get(script)
         def ctx = new FailureContext(stageId: stageId, exception: e)
 
-        def actions = handlers[stageId]
+        def actions = state.handlers[stageId]
         if (actions != null) {
             for (FailureAction action : actions) {
                 action.execute(script, ctx)
             }
         }
-        for (FailureAction action : globalHandlers) {
+        for (FailureAction action : state.globalHandlers) {
             action.execute(script, ctx)
         }
     }

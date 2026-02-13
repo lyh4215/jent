@@ -33,7 +33,7 @@ def call(String id, Map opts = [:], Closure body) {
                 }
             }
         } catch (Exception e) {
-            FailureRegistry.execute(id, this, e)
+            FailureRegistry.execute(this, id, e)
             throw e
         }
     }

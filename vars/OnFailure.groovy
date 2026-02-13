@@ -3,13 +3,13 @@ import org.company.failure.FailureRegistry
 // stage-specific
 def call(String stageId, Object action) {
     def instance = resolveAction(action)
-    FailureRegistry.addFailureHandler(stageId, instance)
+    FailureRegistry.addFailureHandler(this, stageId, instance)
 }
 
 // global
 def call(Object action) {
     def instance = resolveAction(action)
-    FailureRegistry.addGlobalFailureHandler(instance)
+    FailureRegistry.addGlobalFailureHandler(this, instance)
 }
 
 // 내부 유틸
