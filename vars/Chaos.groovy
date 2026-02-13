@@ -1,11 +1,12 @@
-import org.company.chaos.ChaosException
+import org.company.chaos.ChaosRegistryState
 
 def call(String id, Closure body) {
 
     def registry = ChaosRegistryHolder()
 
-    // Chaos injection (retry 이전에 판단됨)
+    echo "[CHAOS] invoke id='${id}', key='${ChaosRegistryState.currentKey(this)}'"
     registry.maybeFail(this, id)
+    echo "[CHAOS] no injection for id='${id}', running body"
 
     body.call()
 }

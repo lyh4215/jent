@@ -1,10 +1,5 @@
-import org.company.chaos.ChaosRegistry
+import org.company.chaos.ChaosRegistryState
 
 def call() {
-
-    if (!binding.hasVariable("_BUILD_CHAOS_REGISTRY")) {
-        binding.setVariable("_BUILD_CHAOS_REGISTRY", new ChaosRegistry())
-    }
-
-    return binding.getVariable("_BUILD_CHAOS_REGISTRY")
+    return ChaosRegistryState.get(this)
 }
