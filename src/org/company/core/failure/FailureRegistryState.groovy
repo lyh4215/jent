@@ -1,17 +1,31 @@
 package org.company.core.failure
 
-import org.company.core.registry.BaseRegistryState
+import java.util.Collections
+import java.util.WeakHashMap
 
-class FailureRegistryState extends BaseRegistryState<FailureRegistryData> {
+class FailureRegistryState implements Serializable {
 
-    private static final FailureRegistryState INSTANCE = new FailureRegistryState()
+    private static final Map<Object, FailureRegistryData> REGISTRIES =
+            Collections.synchronizedMap(new WeakHashMap<Object, FailureRegistryData>())
 
     static FailureRegistryData get(def script) {
-        return INSTANCE.getOrCreate(script)
-    }
+        Object run = script?.currentBuild?.rawBuild
+        if (run == null) {
+            run = script
+        }
 
-    @Override
-    protected FailureRegistryData newRegistry() {
-        return new FailureRegistryData()
+        FailureRegistryData existing = REGISTRIES.get(run)
+        if (existing != null) {
+            return existing
+        }
+
+        FailureRegistryData created = new FailureRegistryData()
+        REGISTRIES.put(run, created)
+        return created
     }
+}
+
+class FailureRegistryData implements Serializable {
+    Map<String, List<FailureAction>> handlers = [:]
+    List<FailureAction> globalHandlers = []
 }

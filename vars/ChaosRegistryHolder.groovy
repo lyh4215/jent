@@ -1,0 +1,6 @@
+import org.company.core.chaos.ChaosRegistryState
+
+
+def call() {
+    return ChaosRegistryState.get(this)
+}
