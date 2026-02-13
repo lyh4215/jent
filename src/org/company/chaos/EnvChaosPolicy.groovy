@@ -1,5 +1,8 @@
 package org.company.chaos
 
+import org.company.core.chaos.ChaosException
+import org.company.core.chaos.ChaosPolicy
+
 class EnvChaosPolicy implements ChaosPolicy {
 
     @Override

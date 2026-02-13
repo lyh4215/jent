@@ -1,5 +1,8 @@
 package org.company.failure
 
+import org.company.core.failure.FailureAction
+import org.company.core.failure.FailureContext
+
 class FailureLogAction implements FailureAction {
 
     @Override

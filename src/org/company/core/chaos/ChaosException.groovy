@@ -1,4 +1,4 @@
-package org.company.chaos
+package org.company.core.chaos
 
 class ChaosException extends RuntimeException implements Serializable {
     ChaosException(String msg) {

@@ -1,4 +1,4 @@
-import org.company.chaos.ChaosRegistryState
+import org.company.core.chaos.ChaosRegistryState
 
 def call(String id, Closure body) {
 

@@ -1,6 +1,6 @@
-import org.company.failure.FailureRegistry
-import org.company.when.WhenPolicy
-import org.company.chaos.ChaosException
+import org.company.core.failure.FailureRegistry
+import org.company.core.when.WhenPolicy
+import org.company.core.chaos.ChaosException
 
 def call(String id, Map opts = [:], Closure body) {
 

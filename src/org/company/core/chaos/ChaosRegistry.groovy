@@ -1,4 +1,4 @@
-package org.company.chaos
+package org.company.core.chaos
 
 class ChaosRegistry implements Serializable {
 

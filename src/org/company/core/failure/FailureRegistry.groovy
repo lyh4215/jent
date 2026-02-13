@@ -1,4 +1,4 @@
-package org.company.failure
+package org.company.core.failure
 
 class FailureRegistry {
 

@@ -1,4 +1,4 @@
-package org.company.when
+package org.company.core.when
 
 class SkipStageException extends RuntimeException implements Serializable {
     SkipStageException(String message) {

@@ -1,5 +1,5 @@
-import org.company.chaos.ChaosPolicy
-import org.company.chaos.ChaosRegistryState
+import org.company.core.chaos.ChaosPolicy
+import org.company.core.chaos.ChaosRegistryState
 
 def call(ChaosPolicy policy) {
 
