@@ -24,8 +24,3 @@ class FailureRegistryState implements Serializable {
         return created
     }
 }
-
-class FailureRegistryData implements Serializable {
-    Map<String, List<FailureAction>> handlers = [:]
-    List<FailureAction> globalHandlers = []
-}
