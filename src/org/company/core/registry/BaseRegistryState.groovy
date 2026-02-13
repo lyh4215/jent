@@ -12,13 +12,13 @@ abstract class BaseRegistryState<T> implements Serializable {
 
     T getOrCreate(def script) {
         Object key = buildKey(script)
-        T existing = this.@registries.get(key)
+        T existing = registries.get(key)
         if (existing != null) {
             return existing
         }
 
         T created = newRegistry()
-        this.@registries.put(key, created)
+        registries.put(key, created)
         return created
     }
 
