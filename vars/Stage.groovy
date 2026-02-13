@@ -1,8 +1,9 @@
-import org.company.when.SkipStageException
 import org.company.failure.FailureRegistry
 import org.company.when.WhenPolicy
 
 def call(String id, Map opts = [:], Closure body) {
+
+    int retryCount = opts.retry ?: 1
 
     stage(id) {
 
@@ -21,10 +22,9 @@ def call(String id, Map opts = [:], Closure body) {
         }
         
         try {
-            body.call()
-        } catch (SkipStageException se) {
-            // ✅ 스킵은 실패 훅/실패 처리 대상이 아님
-            return
+            retry(retryCount) {
+                body.call()
+            }
         } catch (Exception e) {
             FailureRegistry.execute(id, this, e)
             throw e
