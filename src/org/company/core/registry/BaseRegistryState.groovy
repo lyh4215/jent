@@ -10,20 +10,15 @@ abstract class BaseRegistryState<T> implements Serializable {
 
     protected abstract T newRegistry()
 
-    protected Map<Object, T> registryMap() {
-        return registries
-    }
-
     T getOrCreate(def script) {
         Object key = buildKey(script)
-        Map<Object, T> map = registryMap()
-        T existing = map.get(key)
+        T existing = this.@registries.get(key)
         if (existing != null) {
             return existing
         }
 
         T created = newRegistry()
-        map.put(key, created)
+        this.@registries.put(key, created)
         return created
     }
 
