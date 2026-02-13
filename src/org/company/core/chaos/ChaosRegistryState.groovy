@@ -1,40 +1,21 @@
 package org.company.core.chaos
 
-import java.util.Collections
-import java.util.WeakHashMap
+import org.company.core.registry.BaseRegistryState
 
-class ChaosRegistryState implements Serializable {
+class ChaosRegistryState extends BaseRegistryState<ChaosRegistryData> {
 
-    private static final Map<Object, ChaosRegistry> REGISTRIES =
-            Collections.synchronizedMap(new WeakHashMap<Object, ChaosRegistry>())
+    private static final ChaosRegistryState INSTANCE = new ChaosRegistryState()
 
-    static ChaosRegistry get(def script) {
-        Object run = script?.currentBuild?.rawBuild
-        if (run == null) {
-            // local/test fallback: isolate by script instance
-            run = script
-        }
-
-        ChaosRegistry existing = REGISTRIES.get(run)
-        if (existing != null) {
-            return existing
-        }
-
-        ChaosRegistry created = new ChaosRegistry()
-        REGISTRIES.put(run, created)
-        return created
+    static ChaosRegistryData get(def script) {
+        return INSTANCE.getOrCreate(script)
     }
 
     static String currentBuildRef(def script) {
-        try {
-            def run = script?.currentBuild?.rawBuild
-            if (run == null) {
-                return "local-script"
-            }
-            def fullName = run.parent?.fullName ?: "unknown-job"
-            return "${fullName}#${run.number}"
-        } catch (ignored) {
-            return "unknown-build"
-        }
+        return BaseRegistryState.currentBuildRef(script)
+    }
+
+    @Override
+    protected ChaosRegistryData newRegistry() {
+        return new ChaosRegistryData()
     }
 }
