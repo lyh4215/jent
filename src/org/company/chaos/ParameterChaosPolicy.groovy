@@ -2,6 +2,7 @@ package org.company.chaos
 
 import org.company.core.chaos.ChaosException
 import org.company.core.chaos.ChaosPolicy
+import org.company.core.logging.VerboseLogger
 
 class ParameterChaosPolicy implements ChaosPolicy {
 
@@ -9,26 +10,26 @@ class ParameterChaosPolicy implements ChaosPolicy {
     boolean matches(String pointId, def script) {
         def enabled = isChaosEnabled(script)
         if (!enabled) {
-            script.echo("[CHAOS] disabled (CHAOS_ENABLED=${safeRead(script, 'CHAOS_ENABLED')})")
+            VerboseLogger.log(script, "[CHAOS] disabled (CHAOS_ENABLED=${safeRead(script, 'CHAOS_ENABLED')})")
             return false
         }
 
         def rawPoints = safeRead(script, 'CHAOS_POINTS')
         if (!rawPoints) {
-            script.echo("[CHAOS] enabled but no CHAOS_POINTS configured")
+            VerboseLogger.log(script, "[CHAOS] enabled but no CHAOS_POINTS configured")
             return false
         }
 
         def normalizedPointId = normalizeToken(pointId)
         if (!normalizedPointId) {
-            script.echo("[CHAOS] empty pointId from Chaos() call")
+            VerboseLogger.log(script, "[CHAOS] empty pointId from Chaos() call")
             return false
         }
 
         def points = normalizePoints(rawPoints.toString())
         def matched = points.contains(normalizedPointId)
 
-        script.echo("[CHAOS] check point='${normalizedPointId}', configured=${points}, matched=${matched}")
+        VerboseLogger.log(script, "[CHAOS] check point='${normalizedPointId}', configured=${points}, matched=${matched}")
         return matched
     }
 
