@@ -1,53 +1,40 @@
 package org.company.chaos
 
-import java.util.concurrent.ConcurrentHashMap
+import java.util.Collections
+import java.util.WeakHashMap
 
 class ChaosRegistryState implements Serializable {
 
-    private static final String DEFAULT_KEY = "default"
-    private static final Map<String, ChaosRegistry> REGISTRIES = new ConcurrentHashMap<>()
+    private static final Map<Object, ChaosRegistry> REGISTRIES =
+            Collections.synchronizedMap(new WeakHashMap<Object, ChaosRegistry>())
 
-    static synchronized ChaosRegistry get(def script) {
-        String key = buildKey(script)
+    static ChaosRegistry get(def script) {
+        Object run = script?.currentBuild?.rawBuild
+        if (run == null) {
+            // local/test fallback: isolate by script instance
+            run = script
+        }
 
-        ChaosRegistry existing = REGISTRIES.get(key)
+        ChaosRegistry existing = REGISTRIES.get(run)
         if (existing != null) {
             return existing
         }
 
-        // If a registry was created before env vars were populated,
-        // keep using that one for this run.
-        ChaosRegistry fallback = REGISTRIES.get(DEFAULT_KEY)
-        if (fallback != null) {
-            REGISTRIES.put(key, fallback)
-            return fallback
-        }
-
         ChaosRegistry created = new ChaosRegistry()
-        REGISTRIES.put(key, created)
+        REGISTRIES.put(run, created)
         return created
     }
 
-    static String currentKey(def script) {
-        return buildKey(script)
-    }
-
-    private static String buildKey(def script) {
-        def jobName = safeEnv(script, "JOB_NAME")
-        def buildNumber = safeEnv(script, "BUILD_NUMBER")
-        if (jobName && buildNumber) {
-            return "${jobName}#${buildNumber}"
-        }
-
-        // Fallback for non-Jenkins/local execution paths.
-        return DEFAULT_KEY
-    }
-
-    private static Object safeEnv(def script, String key) {
+    static String currentBuildRef(def script) {
         try {
-            return script?.env?."${key}"
+            def run = script?.currentBuild?.rawBuild
+            if (run == null) {
+                return "local-script"
+            }
+            def fullName = run.parent?.fullName ?: "unknown-job"
+            return "${fullName}#${run.number}"
         } catch (ignored) {
-            return null
+            return "unknown-build"
         }
     }
 }
