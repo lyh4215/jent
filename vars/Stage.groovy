@@ -1,5 +1,6 @@
 import org.company.failure.FailureRegistry
 import org.company.when.WhenPolicy
+import org.company.chaos.ChaosException
 
 def call(String id, Map opts = [:], Closure body) {
 
@@ -23,7 +24,13 @@ def call(String id, Map opts = [:], Closure body) {
         
         try {
             retry(retryCount) {
-                body.call()
+
+                try {
+                    body.call()
+                } catch (ChaosException ce) {
+                    // Chaos는 retry 대상 아님
+                    throw ce
+                }
             }
         } catch (Exception e) {
             FailureRegistry.execute(id, this, e)
