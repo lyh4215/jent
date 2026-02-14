@@ -50,7 +50,7 @@ class BranchPatternPolicy implements WhenPolicy {
                 out.append(c)
             }
         }
-        out.append("$")
+        out.append('$')
         return out.toString()
     }
 }
