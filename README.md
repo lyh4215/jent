@@ -41,18 +41,10 @@ node {
     properties([
         parameters([
             booleanParam(name: 'CHAOS_ENABLED', defaultValue: false),
-            string(name: 'CHAOS_POINTS', defaultValue: '')
+            string(name: 'CHAOS_POINTS', defaultValue: ''),
+            string(name: 'DEPLOY_ENV', defaultValue: 'dev')
         ])
     ])
-
-    def failureHandlersByStage = ['Deploy': [new org.company.failure.FailureLogAction()]]
-    def globalFailureHandlers = [new org.company.failure.NotifySlack()]
-
-    def runFailureHandlers = { String stageId, Exception e ->
-        def ctx = new org.company.core.failure.FailureContext(stageId: stageId, exception: e)
-        (failureHandlersByStage[stageId] ?: []).each { it.execute(this, ctx) }
-        globalFailureHandlers.each { it.execute(this, ctx) }
-    }
 
     def chaosEnabled = params.CHAOS_ENABLED?.toString()?.toBoolean()
     def chaosPoints = (params.CHAOS_POINTS ?: '')
@@ -62,20 +54,19 @@ node {
             .collect { it.trim().toLowerCase() }
             .toSet()
 
-    def maybeInjectChaos = { String pointId ->
-        if (chaosEnabled && chaosPoints.contains(pointId.toLowerCase())) {
-            error("Injected failure at chaos point: ${pointId}")
-        }
-    }
-
     stage('Build') {
         if (env.BRANCH_NAME == 'main') {
-            retry(2) {
-                echo 'build...'
+            try {
+                retry(2) {
+                    sh 'make build'
+                }
+            } catch (Exception e) {
+                // notify slack logic
+                throw e
             }
         } else {
             catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
-                error('Skipped on non-main branch')
+                error("Skipped by condition: Build")
             }
         }
     }
@@ -83,11 +74,23 @@ node {
     stage('Deploy') {
         try {
             retry(1) {
-                maybeInjectChaos('deploy.before')
-                echo 'deploy...'
+                if (chaosEnabled && chaosPoints.contains('deploy.before')) {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        error("Injected failure at chaos point: deploy.before")
+                    }
+                }
+
+                sh "make deploy ENV=${params.DEPLOY_ENV}"
+
+                if (params.DEPLOY_ENV == 'prod' && chaosEnabled && chaosPoints.contains('deploy.after')) {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        error("Injected failure at chaos point: deploy.after")
+                    }
+                }
             }
         } catch (Exception e) {
-            runFailureHandlers('Deploy', e)
+            currentBuild.description = "Failed at stage: Deploy"
+            // notify slack logic
             throw e
         }
     }
