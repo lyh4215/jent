@@ -1,5 +1,5 @@
 // vars/githubCommentCoverage.groovy
-import org.company.ci.CoverageParser
+import org.jent.ci.CoverageParser
 
 def call() {
     def report = CoverageParser.extractLineRate('coverage.xml')

@@ -1,6 +1,6 @@
-import org.company.domain.*
-import org.company.policy.*
-import org.company.features.failureInjection.*
+import org.jent.domain.*
+import org.jent.policy.*
+import org.jent.features.failureInjection.*
 
 def call(
   InjectionPoint point,

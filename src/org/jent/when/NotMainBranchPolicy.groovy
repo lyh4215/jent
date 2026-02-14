@@ -1,6 +1,6 @@
-package org.company.when
+package org.jent.when
 
-import org.company.core.when.WhenPolicy
+import org.jent.core.when.WhenPolicy
 
 class NotMainBranchPolicy implements WhenPolicy {
 

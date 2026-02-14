@@ -1,7 +1,7 @@
-package org.company.failure
+package org.jent.failure
 
-import org.company.core.failure.FailureAction
-import org.company.core.failure.FailureContext
+import org.jent.core.failure.FailureAction
+import org.jent.core.failure.FailureContext
 
 class FailureLogAction implements FailureAction {
 

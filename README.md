@@ -102,10 +102,10 @@ node {
 ```groovy
 @Library('jent@main') _
 
-import org.company.when.MainBranchPolicy
-import org.company.failure.FailureLogAction
-import org.company.failure.NotifySlack
-import org.company.chaos.ParameterChaosPolicy
+import org.jent.when.MainBranchPolicy
+import org.jent.failure.FailureLogAction
+import org.jent.failure.NotifySlack
+import org.jent.chaos.ParameterChaosPolicy
 
 properties([
     parameters([
@@ -179,16 +179,16 @@ Chaos(String pointId) { ... }
 ## Built-in Policies and Actions
 
 When policies:
-- `org.company.when.MainBranchPolicy`
-- `org.company.when.NotMainBranchPolicy`
+- `org.jent.when.MainBranchPolicy`
+- `org.jent.when.NotMainBranchPolicy`
 
 Failure actions:
-- `org.company.failure.FailureLogAction`
-- `org.company.failure.NotifySlack`
+- `org.jent.failure.FailureLogAction`
+- `org.jent.failure.NotifySlack`
 
 Chaos policies:
-- `org.company.chaos.ParameterChaosPolicy`
-- `org.company.chaos.EnvChaosPolicy`
+- `org.jent.chaos.ParameterChaosPolicy`
+- `org.jent.chaos.EnvChaosPolicy`
 
 ## Registry Design
 

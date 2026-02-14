@@ -1,5 +1,5 @@
-import org.company.core.chaos.ChaosRegistryState
-import org.company.core.logging.VerboseLogger
+import org.jent.core.chaos.ChaosRegistryState
+import org.jent.core.logging.VerboseLogger
 
 def call(String id, Closure body) {
 

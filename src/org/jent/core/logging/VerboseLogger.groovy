@@ -1,4 +1,4 @@
-package org.company.core.logging
+package org.jent.core.logging
 
 class VerboseLogger implements Serializable {
 

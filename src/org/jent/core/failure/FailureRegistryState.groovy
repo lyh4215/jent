@@ -1,4 +1,4 @@
-package org.company.core.failure
+package org.jent.core.failure
 
 import java.util.Collections
 import java.util.WeakHashMap

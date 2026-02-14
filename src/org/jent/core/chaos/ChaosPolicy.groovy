@@ -1,4 +1,4 @@
-package org.company.core.chaos
+package org.jent.core.chaos
 
 interface ChaosPolicy extends Serializable {
 

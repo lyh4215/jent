@@ -1,4 +1,4 @@
-package org.company.core.failure
+package org.jent.core.failure
 
 class FailureContext implements Serializable {
     String stageId

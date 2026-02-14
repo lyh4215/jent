@@ -1,6 +1,6 @@
-import org.company.core.chaos.ChaosPolicy
-import org.company.core.chaos.ChaosRegistryState
-import org.company.core.logging.VerboseLogger
+import org.jent.core.chaos.ChaosPolicy
+import org.jent.core.chaos.ChaosRegistryState
+import org.jent.core.logging.VerboseLogger
 
 def call(ChaosPolicy policy) {
 

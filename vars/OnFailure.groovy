@@ -1,4 +1,4 @@
-import org.company.core.failure.FailureRegistry
+import org.jent.core.failure.FailureRegistry
 
 // stage-specific
 def call(String stageId, Object action) {

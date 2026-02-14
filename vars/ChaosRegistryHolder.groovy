@@ -1,4 +1,4 @@
-import org.company.core.chaos.ChaosRegistryState
+import org.jent.core.chaos.ChaosRegistryState
 
 
 def call() {

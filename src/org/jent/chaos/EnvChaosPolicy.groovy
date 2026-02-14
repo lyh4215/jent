@@ -1,7 +1,7 @@
-package org.company.chaos
+package org.jent.chaos
 
-import org.company.core.chaos.ChaosException
-import org.company.core.chaos.ChaosPolicy
+import org.jent.core.chaos.ChaosException
+import org.jent.core.chaos.ChaosPolicy
 
 class EnvChaosPolicy implements ChaosPolicy {
 

@@ -1,6 +1,6 @@
-package org.company.core.chaos
+package org.jent.core.chaos
 
-import org.company.core.logging.VerboseLogger
+import org.jent.core.logging.VerboseLogger
 
 class ChaosRegistry implements Serializable {
 

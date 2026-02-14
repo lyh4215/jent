@@ -1,8 +1,8 @@
-package org.company.chaos
+package org.jent.chaos
 
-import org.company.core.chaos.ChaosException
-import org.company.core.chaos.ChaosPolicy
-import org.company.core.logging.VerboseLogger
+import org.jent.core.chaos.ChaosException
+import org.jent.core.chaos.ChaosPolicy
+import org.jent.core.logging.VerboseLogger
 
 class ParameterChaosPolicy implements ChaosPolicy {
 
