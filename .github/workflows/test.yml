@@ -21,5 +21,59 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Run tests
-        run: gradle --no-daemon test
+      - name: Run tests and generate coverage
+        run: gradle --no-daemon test jacocoTestReport
+
+      - name: Publish JaCoCo summary
+        shell: bash
+        run: |
+          XML_FILE="build/reports/jacoco/test/jacocoTestReport.xml"
+          if [[ ! -f "$XML_FILE" ]]; then
+            echo "JaCoCo XML report not found: $XML_FILE" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          read -r LINE_COVERED LINE_MISSED BRANCH_COVERED BRANCH_MISSED < <(
+            python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          root = ET.parse("build/reports/jacoco/test/jacocoTestReport.xml").getroot()
+          values = {}
+          for c in root.findall("counter"):
+              t = c.attrib.get("type")
+              if t in ("LINE", "BRANCH"):
+                  values[t] = (int(c.attrib["covered"]), int(c.attrib["missed"]))
+          line_cov, line_miss = values.get("LINE", (0, 0))
+          br_cov, br_miss = values.get("BRANCH", (0, 0))
+          print(line_cov, line_miss, br_cov, br_miss)
+          PY
+          )
+
+          line_total=$((LINE_COVERED + LINE_MISSED))
+          branch_total=$((BRANCH_COVERED + BRANCH_MISSED))
+
+          line_pct="0.00"
+          branch_pct="0.00"
+          if [[ "$line_total" -gt 0 ]]; then
+            line_pct=$(awk "BEGIN { printf \"%.2f\", ($LINE_COVERED/$line_total)*100 }")
+          fi
+          if [[ "$branch_total" -gt 0 ]]; then
+            branch_pct=$(awk "BEGIN { printf \"%.2f\", ($BRANCH_COVERED/$branch_total)*100 }")
+          fi
+
+          {
+            echo "## JaCoCo Coverage"
+            echo ""
+            echo "| Metric | Covered | Missed | Total | Coverage |"
+            echo "|---|---:|---:|---:|---:|"
+            echo "| Line | $LINE_COVERED | $LINE_MISSED | $line_total | ${line_pct}% |"
+            echo "| Branch | $BRANCH_COVERED | $BRANCH_MISSED | $branch_total | ${branch_pct}% |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-and-coverage-reports
+          path: |
+            build/reports/tests/test
+            build/reports/jacoco/test
