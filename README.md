@@ -26,6 +26,68 @@ The goal is simple: make pipeline code easier to read, safer to evolve, and more
 
 ## Quick Start (Scripted Pipeline)
 
+### Without Jent (raw scripted pipeline)
+
+```groovy
+node {
+    properties([
+        parameters([
+            booleanParam(name: 'CHAOS_ENABLED', defaultValue: false),
+            string(name: 'CHAOS_POINTS', defaultValue: '')
+        ])
+    ])
+
+    def failureHandlersByStage = ['Deploy': [new org.company.failure.FailureLogAction()]]
+    def globalFailureHandlers = [new org.company.failure.NotifySlack()]
+
+    def runFailureHandlers = { String stageId, Exception e ->
+        def ctx = new org.company.core.failure.FailureContext(stageId: stageId, exception: e)
+        (failureHandlersByStage[stageId] ?: []).each { it.execute(this, ctx) }
+        globalFailureHandlers.each { it.execute(this, ctx) }
+    }
+
+    def chaosEnabled = params.CHAOS_ENABLED?.toString()?.toBoolean()
+    def chaosPoints = (params.CHAOS_POINTS ?: '')
+            .toString()
+            .split(/[,\s]+/)
+            .findAll { it }
+            .collect { it.trim().toLowerCase() }
+            .toSet()
+
+    def maybeInjectChaos = { String pointId ->
+        if (chaosEnabled && chaosPoints.contains(pointId.toLowerCase())) {
+            error("Injected failure at chaos point: ${pointId}")
+        }
+    }
+
+    stage('Build') {
+        if (env.BRANCH_NAME == 'main') {
+            retry(2) {
+                echo 'build...'
+            }
+        } else {
+            catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
+                error('Skipped on non-main branch')
+            }
+        }
+    }
+
+    stage('Deploy') {
+        try {
+            retry(1) {
+                maybeInjectChaos('deploy.before')
+                echo 'deploy...'
+            }
+        } catch (Exception e) {
+            runFailureHandlers('Deploy', e)
+            throw e
+        }
+    }
+}
+```
+
+### With Jent
+
 ```groovy
 @Library('jenkins-study-shared-lib@main') _
 
@@ -60,6 +122,13 @@ node {
     }
 }
 ```
+
+### Why this is better
+
+- Less boilerplate in Jenkinsfile
+- Failure and chaos behavior are declared, not hand-wired per stage
+- Policy and action logic become reusable typed-like components
+- Build-scoped registry state is managed internally instead of ad-hoc maps
 
 ## Core APIs
 
