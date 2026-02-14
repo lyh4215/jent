@@ -161,6 +161,7 @@ When composition example:
 ```groovy
 import org.jent.when.BranchPatternPolicy
 import org.jent.when.ParamFlagPolicy
+import org.jent.when.When
 
 Stage('Deploy', [
     when: When.and([
@@ -176,7 +177,7 @@ Stage('Deploy', [
 }
 
 Stage('Smoke', [
-    when: When(new BranchPatternPolicy(patterns: ['main']))
+    when: When.of(new BranchPatternPolicy(patterns: ['main']))
 ]) {
     echo 'smoke...'
 }
