@@ -156,6 +156,32 @@ Behavior:
 - Stage body is retried according to `retry`
 - On exception, registered `FailureAction`s are executed, then the exception is re-thrown
 
+When composition example:
+
+```groovy
+import org.jent.when.BranchPatternPolicy
+import org.jent.when.ParamFlagPolicy
+
+Stage('Deploy', [
+    when: When.and([
+        new BranchPatternPolicy(patterns: ['main', 'release/*']),
+        When.not(new ParamFlagPolicy(paramName: 'SKIP_DEPLOY', expectedValue: true)),
+        When.or([
+            new ParamFlagPolicy(paramName: 'RUN_DEPLOY', expectedValue: true),
+            new BranchPatternPolicy(patterns: ['hotfix/*'])
+        ])
+    ])
+]) {
+    echo 'deploy...'
+}
+
+Stage('Smoke', [
+    when: When(new BranchPatternPolicy(patterns: ['main']))
+]) {
+    echo 'smoke...'
+}
+```
+
 ### OnFailure
 
 ```groovy
@@ -179,6 +205,9 @@ Chaos(String pointId) { ... }
 When policies:
 - `org.jent.when.BranchPatternPolicy`
 - `org.jent.when.ParamFlagPolicy`
+- `org.jent.core.when.AndPolicy`
+- `org.jent.core.when.OrPolicy`
+- `org.jent.core.when.NotPolicy`
 
 Failure actions:
 - `org.jent.failure.FailureLogAction`

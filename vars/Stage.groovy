@@ -1,5 +1,5 @@
 import org.jent.core.failure.FailureRegistry
-import org.jent.core.when.WhenPolicy
+import org.jent.core.when.WhenPolicyResolver
 import org.jent.core.chaos.ChaosException
 
 def call(String id, Map opts = [:], Closure body) {
@@ -10,7 +10,7 @@ def call(String id, Map opts = [:], Closure body) {
 
         // --- When 처리 ---
         if (opts?.when) {
-            def policy = resolvePolicy(opts.when)
+            def policy = WhenPolicyResolver.resolve(opts.when)
 
             if (!policy.allows(this)) {
 
@@ -37,10 +37,4 @@ def call(String id, Map opts = [:], Closure body) {
             throw e
         }
     }
-}
-
-private WhenPolicy resolvePolicy(Object obj) {
-    if (obj instanceof Class) return obj.newInstance()
-    if (obj instanceof WhenPolicy) return obj
-    throw new IllegalArgumentException("When requires a WhenPolicy class or instance")
 }
