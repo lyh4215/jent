@@ -41,13 +41,13 @@ properties([
     ])
 ])
 
+OnFailure('Deploy', new FailureLogAction())
+OnFailure(new NotifySlack())
+
+RegisterChaos(new ParameterChaosPolicy())
+
 node {
     env.VERBOSE = 'false' // true|1|yes|on enables verbose logs
-
-    OnFailure('Deploy', new FailureLogAction())
-    OnFailure(new NotifySlack())
-
-    RegisterChaos(new ParameterChaosPolicy())
 
     Stage('Build', [retry: 2, when: MainBranchPolicy]) {
         echo 'build...'
