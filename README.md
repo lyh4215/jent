@@ -24,6 +24,14 @@ The goal is simple: make pipeline code easier to read, safer to evolve, and more
 - Build-scoped internal registry state
 - Optional verbose logging via `VERBOSE=true`
 
+## Why not plain Declarative only?
+
+Declarative Jenkinsfiles are great for baseline structure, but they are still Jenkins-syntax centric.
+Jent adds a reusable, type-oriented layer on top of Jenkins syntax:
+- policy/action interfaces (`WhenPolicy`, `FailureAction`, `ChaosPolicy`)
+- composable execution model (`Stage` + `When` + `Retry` + `Failure` + `Chaos`)
+- shared behavior through internal registries instead of per-pipeline wiring
+
 ## Quick Start (Scripted Pipeline)
 
 ### Without Jent (raw scripted pipeline)
