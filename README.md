@@ -102,7 +102,7 @@ node {
 ```groovy
 @Library('jent@main') _
 
-import org.jent.when.MainBranchPolicy
+import org.jent.when.BranchPatternPolicy
 import org.jent.failure.FailureLogAction
 import org.jent.chaos.ParameterChaosPolicy
 
@@ -120,7 +120,7 @@ RegisterChaos(new ParameterChaosPolicy())
 node {
     env.VERBOSE = 'false' // true|1|yes|on enables verbose logs
 
-    Stage('Build', [retry: 2, when: MainBranchPolicy]) {
+    Stage('Build', [retry: 2, when: BranchPatternPolicy]) {
         echo 'build...'
     }
 
@@ -177,7 +177,6 @@ Chaos(String pointId) { ... }
 ## Built-in Policies and Actions
 
 When policies:
-- `org.jent.when.MainBranchPolicy`
 - `org.jent.when.BranchPatternPolicy`
 - `org.jent.when.ParamFlagPolicy`
 
