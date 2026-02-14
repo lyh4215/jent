@@ -104,7 +104,6 @@ node {
 
 import org.jent.when.MainBranchPolicy
 import org.jent.failure.FailureLogAction
-import org.jent.failure.NotifySlack
 import org.jent.chaos.ParameterChaosPolicy
 
 properties([
@@ -115,7 +114,6 @@ properties([
 ])
 
 OnFailure('Deploy', new FailureLogAction())
-OnFailure(new NotifySlack())
 
 RegisterChaos(new ParameterChaosPolicy())
 
@@ -180,11 +178,12 @@ Chaos(String pointId) { ... }
 
 When policies:
 - `org.jent.when.MainBranchPolicy`
-- `org.jent.when.NotMainBranchPolicy`
+- `org.jent.when.BranchPatternPolicy`
+- `org.jent.when.ParamFlagPolicy`
 
 Failure actions:
 - `org.jent.failure.FailureLogAction`
-- `org.jent.failure.NotifySlack`
+- `org.jent.failure.SetBuildDescriptionAction`
 
 Chaos policies:
 - `org.jent.chaos.ParameterChaosPolicy`
