@@ -97,7 +97,7 @@ node {
 ### With Jent
 
 ```groovy
-@Library('jenkins-study-shared-lib@main') _
+@Library('jent@main') _
 
 import org.company.when.MainBranchPolicy
 import org.company.failure.FailureLogAction
