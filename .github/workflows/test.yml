@@ -68,12 +68,3 @@ jobs:
             echo "| Line | $LINE_COVERED | $LINE_MISSED | $line_total | ${line_pct}% |"
             echo "| Branch | $BRANCH_COVERED | $BRANCH_MISSED | $branch_total | ${branch_pct}% |"
           } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Upload test and coverage reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-and-coverage-reports
-          path: |
-            build/reports/tests/test
-            build/reports/jacoco/test
