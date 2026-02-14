@@ -20,4 +20,17 @@ class StageStepTest extends BaseVarsPipelineTest {
             call.methodName == 'echo' && call.argsToString().contains('hello from test stage')
         }
     }
+
+    @Test
+    void duplicateStageIdThrowsIllegalArgumentException() {
+        stageScript.call('same-id') { }
+
+        try {
+            stageScript.call('same-id') { }
+            assert false: 'duplicate stage id should throw'
+        } catch (IllegalArgumentException e) {
+            assert e.message.toLowerCase().contains('duplicate')
+            assert e.message.contains('same-id')
+        }
+    }
 }
