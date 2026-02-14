@@ -1,10 +1,12 @@
 import org.jent.core.failure.FailureRegistry
 import org.jent.core.when.WhenPolicyResolver
 import org.jent.core.chaos.ChaosException
+import org.jent.core.stage.StageRegistryState
 
 def call(String id, Map opts = [:], Closure body) {
 
     int retryCount = opts.retry ?: 1
+    StageRegistryState.registerUnique(this, id)
 
     stage(id) {
 
