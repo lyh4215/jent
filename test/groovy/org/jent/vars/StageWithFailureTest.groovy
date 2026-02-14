@@ -6,7 +6,7 @@ import org.junit.Test
 class StageWithFailureTest extends BaseVarsPipelineTest {
 
     @Test
-    void "OnFailure action is invoked when stage body fails"() {
+    void onFailureActionIsInvokedWhenStageBodyFails() {
         onFailureScript.call('deploy', new FailureLogAction())
 
         try {

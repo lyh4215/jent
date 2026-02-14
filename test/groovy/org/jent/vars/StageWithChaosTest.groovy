@@ -7,7 +7,7 @@ import org.junit.Test
 class StageWithChaosTest extends BaseVarsPipelineTest {
 
     @Test
-    void "Chaos injects failure only when enabled and point matches"() {
+    void chaosInjectsFailureOnlyWhenEnabledAndPointMatches() {
         registerChaosScript.call(new ParameterChaosPolicy())
 
         binding.setVariable('params', [CHAOS_ENABLED: true, CHAOS_POINTS: 'point.a'])

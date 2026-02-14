@@ -5,7 +5,7 @@ import org.junit.Test
 class StageStepTest extends BaseVarsPipelineTest {
 
     @Test
-    void "Stage test executes body and completes"() {
+    void stageExecutesBodyAndCompletes() {
         boolean executed = false
         stageScript.call('test') {
             executed = true

@@ -7,7 +7,7 @@ import org.junit.Test
 class StageWithWhenTest extends BaseVarsPipelineTest {
 
     @Test
-    void "ParamFlagPolicy runs stage A and skips stage B when RUN_STAGE is A"() {
+    void paramFlagPolicyRunsStageAAndSkipsStageBWhenRunStageIsA() {
         binding.setVariable('params', [RUN_STAGE: 'A'])
 
         boolean executedA = false
@@ -28,7 +28,7 @@ class StageWithWhenTest extends BaseVarsPipelineTest {
     }
 
     @Test
-    void "When composition runs A and skips B"() {
+    void whenCompositionRunsAAndSkipsB() {
         binding.setVariable('params', [RUN_STAGE: 'A'])
         binding.setVariable('env', [BRANCH_NAME: 'main'])
 
