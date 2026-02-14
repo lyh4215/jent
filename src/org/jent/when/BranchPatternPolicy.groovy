@@ -44,7 +44,7 @@ class BranchPatternPolicy implements WhenPolicy {
                 out.append(".*")
             } else if (c == '?') {
                 out.append('.')
-            } else if ('\\.^$|()[]{}+'.indexOf(c) >= 0) {
+            } else if ('\\.^$|()[]{}+'.indexOf(String.valueOf(c)) >= 0) {
                 out.append('\\').append(c)
             } else {
                 out.append(c)
