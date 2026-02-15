@@ -1,272 +1,95 @@
-# Jent
+# Jent — Pipeline DSL for Jenkins
 
 [![Test](https://github.com/lyh4215/jent/actions/workflows/test.yml/badge.svg)](https://github.com/lyh4215/jent/actions/workflows/test.yml)
 [![Release](https://img.shields.io/github/v/release/lyh4215/jent)](https://github.com/lyh4215/jent/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/lyh4215/jent/blob/main/LICENSE)
 [![Groovy](https://img.shields.io/badge/language-Groovy-4298B8)](https://groovy-lang.org/)
 
-Type-oriented abstractions for Jenkins Scripted Pipelines.
+Jent adds a higher-level, type-oriented abstraction on top of Jenkins Scripted Pipelines so teams can reduce boilerplate and express retry, failure handling, and chaos injection consistently.
 
-Jenkins pipelines are powerful, but raw scripted logic quickly becomes noisy.
-Jent adds a higher-level layer on top of Jenkins with composable primitives:
-`Stage`, `When`, `Retry`, `Failure`, and `Chaos`.
+## Overview
 
-The goal is simple: make pipeline code easier to read, safer to evolve, and more consistent across teams.
+Problem:
+- Jenkinsfiles become noisy and hard to maintain.
+- Condition/retry/failure logic gets scattered.
+- Teams repeatedly reimplement similar patterns.
 
-## Why Jent
-
-- Reduce repetitive Jenkinsfile boilerplate (`if`, `retry`, `try/catch`, ad-hoc handlers)
-- Express failure handling and fault injection as explicit policies/actions
-- Keep build-scoped state inside internal registries instead of leaking state logic into Jenkinsfiles
-
-## What You Get
-
-- `Stage(id, opts) { ... }`
-- `When` policy execution control via `opts.when`
-- `Retry` control via `opts.retry`
-- `OnFailure(...)` for stage-level and global failure handlers
-- `RegisterChaos(...)` + `Chaos(...)` for controlled fault injection points
+Solution:
+- Composable primitives: `Stage`, `When`, `Retry`, `OnFailure`, `Chaos`
 - Build-scoped internal registry state
-- Optional verbose logging via `VERBOSE=true`
+- Reusable policy/action abstractions for consistent pipeline behavior
 
-## Why not plain Declarative only?
+## Install
 
-Declarative Jenkinsfiles are great for baseline structure, but they are still Jenkins-syntax centric.
-Jent adds a reusable, type-oriented layer on top of Jenkins syntax:
-- policy/action interfaces (`WhenPolicy`, `FailureAction`, `ChaosPolicy`)
-- composable execution model (`Stage` + `When` + `Retry` + `Failure` + `Chaos`)
-- shared behavior through internal registries instead of per-pipeline wiring
-
-## Quick Start (Scripted Pipeline)
-
-More complete side-by-side examples are in `docs/examples`:
-- `docs/examples/with-jent.Jenkinsfile`
-- `docs/examples/without-jent.Jenkinsfile`
-
-### Without Jent (raw scripted pipeline)
+1. Configure this repository as a Jenkins Shared Library (for example, `jent`) in Jenkins global settings.
+2. Load the library in your scripted pipeline:
 
 ```groovy
-node {
-    properties([
-        parameters([
-            booleanParam(name: 'CHAOS_ENABLED', defaultValue: false),
-            string(name: 'CHAOS_POINTS', defaultValue: ''),
-            string(name: 'DEPLOY_ENV', defaultValue: 'dev')
-        ])
-    ])
-
-    def chaosEnabled = params.CHAOS_ENABLED?.toString()?.toBoolean()
-    def chaosPoints = (params.CHAOS_POINTS ?: '')
-            .toString()
-            .split(/[,\s]+/)
-            .findAll { it }
-            .collect { it.trim().toLowerCase() }
-            .toSet()
-
-    stage('Build') {
-        if (env.BRANCH_NAME == 'main') {
-            try {
-                retry(2) {
-                    sh 'make build'
-                }
-            } catch (Exception e) {
-                // notify slack logic
-                throw e
-            }
-        } else {
-            catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
-                error("Skipped by condition: Build")
-            }
-        }
-    }
-
-    stage('Deploy') {
-        try {
-            retry(1) {
-                if (chaosEnabled && chaosPoints.contains('deploy.before')) {
-                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        error("Injected failure at chaos point: deploy.before")
-                    }
-                }
-
-                sh "make deploy ENV=${params.DEPLOY_ENV}"
-
-                if (params.DEPLOY_ENV == 'prod' && chaosEnabled && chaosPoints.contains('deploy.after')) {
-                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                        error("Injected failure at chaos point: deploy.after")
-                    }
-                }
-            }
-        } catch (Exception e) {
-            currentBuild.description = "Failed at stage: Deploy"
-            // notify slack logic
-            throw e
-        }
-    }
-}
+@Library('jent@main') _
 ```
 
-### With Jent
+Install details: `docs/install.md`
+
+## Quick Start
 
 ```groovy
 @Library('jent@main') _
 
-import org.jent.when.BranchPatternPolicy
-import org.jent.failure.FailureLogAction
+import org.jent.when.ParamFlagPolicy
+import org.jent.failure.SetBuildDescriptionAction
 import org.jent.chaos.ParameterChaosPolicy
 
-properties([
-    parameters([
-        booleanParam(name: 'CHAOS_ENABLED', defaultValue: false),
-        string(name: 'CHAOS_POINTS', defaultValue: '')
-    ])
-])
-
-OnFailure('Deploy', new FailureLogAction())
-
+OnFailure(new SetBuildDescriptionAction())
 RegisterChaos(new ParameterChaosPolicy())
 
 node {
-    env.VERBOSE = 'false' // true|1|yes|on enables verbose logs
-
-    Stage('Build', [retry: 2, when: BranchPatternPolicy]) {
-        echo 'build...'
+    Stage('Build', [retry: 2, when: new ParamFlagPolicy(paramName: 'RUN_STAGE', expectedValue: 'build')]) {
+        echo 'building...'
     }
 
-    Stage('Deploy', [retry: 1]) {
+    Stage('Deploy') {
         Chaos('deploy.before') {
-            echo 'deploy...'
+            echo 'deploying...'
         }
     }
 }
 ```
 
-### Why this is better
+Before/after examples:
+- `docs/examples/with-jent.Jenkinsfile`
+- `docs/examples/without-jent.Jenkinsfile`
 
-- Less boilerplate in Jenkinsfile
-- Failure and chaos behavior are declared, not hand-wired per stage
-- Policy and action logic become reusable typed-like components
-- Build-scoped registry state is managed internally instead of ad-hoc maps
+## Features
 
-## Core APIs
+- `Stage(id, opts, body)` with `when` and `retry`
+- `When()` operations: `of`, `and`, `or`, `not`
+- `OnFailure(stageId, action)` and global `OnFailure(action)`
+- `RegisterChaos(policy)` and `Chaos(pointId) { ... }`
+- Verbose logging via `VERBOSE=true`
 
-### Stage
+API reference: `docs/reference.md`
 
-```groovy
-Stage(String id, Map opts = [:], Closure body)
-```
+## Architecture
 
-Options:
-- `retry` (default: `1`)
-- `when` (`WhenPolicy` class or instance)
-
-Behavior:
-- If `when` does not allow execution, stage is marked `NOT_BUILT`
-- Stage body is retried according to `retry`
-- On exception, registered `FailureAction`s are executed, then the exception is re-thrown
-
-When composition example:
-
-```groovy
-import org.jent.when.BranchPatternPolicy
-import org.jent.when.ParamFlagPolicy
-
-Stage('Deploy', [
-    when: When().and([
-        new BranchPatternPolicy(patterns: ['main', 'release/*']),
-        When().not(new ParamFlagPolicy(paramName: 'SKIP_DEPLOY', expectedValue: true)),
-        When().or([
-            new ParamFlagPolicy(paramName: 'RUN_DEPLOY', expectedValue: true),
-            new BranchPatternPolicy(patterns: ['hotfix/*'])
-        ])
-    ])
-]) {
-    echo 'deploy...'
-}
-
-Stage('Smoke', [
-    when: When().of(new BranchPatternPolicy(patterns: ['main']))
-]) {
-    echo 'smoke...'
-}
-```
-
-### OnFailure
-
-```groovy
-OnFailure(String stageId, FailureAction action) // stage-specific
-OnFailure(FailureAction action)                 // global
-```
-
-### Chaos
-
-```groovy
-RegisterChaos(ChaosPolicy policy)
-Chaos(String pointId) { ... }
-```
-
-- Register one or more chaos policies
-- `Chaos("point")` evaluates registered policies and injects failures on match
-- `ParameterChaosPolicy` uses `CHAOS_ENABLED` and `CHAOS_POINTS`
-
-## Built-in Policies and Actions
-
-When policies:
-- `org.jent.when.BranchPatternPolicy`
-- `org.jent.when.ParamFlagPolicy`
-- `org.jent.core.when.AndPolicy`
-- `org.jent.core.when.OrPolicy`
-- `org.jent.core.when.NotPolicy`
-
-Failure actions:
-- `org.jent.failure.FailureLogAction`
-- `org.jent.failure.SetBuildDescriptionAction`
-
-Chaos policies:
-- `org.jent.chaos.ParameterChaosPolicy`
-- `org.jent.chaos.EnvChaosPolicy`
-
-## Registry Design
-
-Jent keeps runtime state in internal registries:
-
+Jent runtime state is build-scoped and managed through registries:
+- `StageRegistryState` -> `StageRegistryData`
 - `FailureRegistryState` -> `FailureRegistryData`
-- `ChaosRegistryState` -> `ChaosRegistryData` / `ChaosRegistry`
+- `ChaosRegistryState` -> `ChaosRegistryData`
 
-Design points:
-- Build-scoped isolation using `currentBuild.rawBuild`
-- `WeakHashMap` lifecycle-friendly storage
-- Jenkinsfiles do not manage registry internals directly
+Architecture notes: `docs/architecture.md`
 
-## Verbose Logging
+## Examples
 
-Chaos-related debug logs are centralized through a shared logger.
+- `docs/examples/README.md`
+- `docs/examples/with-jent.Jenkinsfile`
+- `docs/examples/without-jent.Jenkinsfile`
 
-- Enable: `env.VERBOSE = 'true'`
-- Disable: unset or `false`
-- Accepted truthy values: `true`, `1`, `yes`, `on`
+## Contributing
 
-## Type-oriented, not fully static-typed
-
-Jent uses interface-driven abstractions (`WhenPolicy`, `FailureAction`, `ChaosPolicy`) and typed domain objects (`FailureContext`, registry data models).
-
-Because Jenkins Scripted Pipeline runs on Groovy with dynamic runtime behavior, this is best described as **type-oriented** or **typed-like abstractions**, not strict compile-time type safety.
-
-## Philosophy
-
-Treat Jenkins pipelines as a composable execution model:
-
-- `When` = execution filter
-- `Retry` = execution wrapper
-- `Stage` = execution unit
-- `Failure` = failure side-effect router
-- `Chaos` = controlled fault injection
-
-Jent exists to raise the abstraction level of Jenkins Scripted Pipelines while staying practical for real CI/CD operations.
+- Run tests locally: `gradle test`
+- Coverage gate is enforced in CI (JaCoCo)
 
 ## Release
 
-- Versioning: SemVer (`MAJOR.MINOR.PATCH`)
-- Current baseline: `0.1.0`
 - Changelog: `CHANGELOG.md`
 - Release process: `docs/release.md`
