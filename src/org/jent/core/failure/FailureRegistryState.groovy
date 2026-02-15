@@ -1,5 +1,6 @@
 package org.jent.core.failure
 
+import com.cloudbees.groovy.cps.NonCPS
 import java.util.Collections
 import java.util.WeakHashMap
 
@@ -13,14 +14,20 @@ class FailureRegistryState implements Serializable {
         if (run == null) {
             run = script
         }
+        return getOrCreate(run)
+    }
 
-        FailureRegistryData existing = REGISTRIES.get(run)
-        if (existing != null) {
-            return existing
+    @NonCPS
+    private static FailureRegistryData getOrCreate(Object run) {
+        synchronized (REGISTRIES) {
+            FailureRegistryData existing = REGISTRIES.get(run)
+            if (existing != null) {
+                return existing
+            }
+
+            FailureRegistryData created = new FailureRegistryData()
+            REGISTRIES.put(run, created)
+            return created
         }
-
-        FailureRegistryData created = new FailureRegistryData()
-        REGISTRIES.put(run, created)
-        return created
     }
 }
