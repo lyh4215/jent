@@ -53,6 +53,7 @@ import org.jent.failure.FailureLogAction
 import org.jent.failure.SetBuildDescriptionAction
 import org.jent.chaos.ParameterChaosPolicy
 
+// Optional Jenkins parameters used by ParameterChaosPolicy
 properties([
     parameters([
         booleanParam(name: 'CHAOS_ENABLED', defaultValue: false),
@@ -60,8 +61,11 @@ properties([
     ])
 ])
 
+// Global failure action: always set build description on stage failure
 OnFailure(new SetBuildDescriptionAction())
+// Stage-specific failure action: only for 'deploy' stage
 OnFailure('deploy', new FailureLogAction())
+// Register built-in chaos policy (reads CHAOS_* params)
 RegisterChaos(new ParameterChaosPolicy())
 
 node {
@@ -69,6 +73,7 @@ node {
         sh 'make test'
     }
 
+    // Retry build stage, inject chaos only around make build command
     Stage('build', [retry: 2]) {
         echo 'prepare build context'
         Chaos('build.command') {
@@ -76,7 +81,10 @@ node {
         }
     }
 
-    Stage('deploy', [when: new BranchPatternPolicy(patterns: ['main'])]) {
+    // Run deploy only on main branch
+    Stage('deploy', 
+        [when: new BranchPatternPolicy(patterns: ['main'])]
+        ) {
         sh 'make deploy'
     }
 }
