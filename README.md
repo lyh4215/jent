@@ -28,36 +28,108 @@ Solution:
 @Library('jent@main') _
 ```
 
-Install details: `docs/install.md`
+Install details: [Install Guide](docs/install.md)
 
 ## Quick Start
 
 ```groovy
 @Library('jent@main') _
 
-import org.jent.when.ParamFlagPolicy
+import org.jent.when.BranchPatternPolicy
+import org.jent.failure.FailureLogAction
 import org.jent.failure.SetBuildDescriptionAction
 import org.jent.chaos.ParameterChaosPolicy
 
+properties([
+    parameters([
+        booleanParam(name: 'CHAOS_ENABLED', defaultValue: false),
+        string(name: 'CHAOS_POINTS', defaultValue: '')
+    ])
+])
+
 OnFailure(new SetBuildDescriptionAction())
+OnFailure('deploy', new FailureLogAction())
 RegisterChaos(new ParameterChaosPolicy())
 
 node {
-    Stage('Build', [retry: 2, when: new ParamFlagPolicy(paramName: 'RUN_STAGE', expectedValue: 'build')]) {
-        echo 'building...'
+    Stage('test') {
+        sh 'make test'
     }
 
-    Stage('Deploy') {
-        Chaos('deploy.before') {
-            echo 'deploying...'
+    Stage('build', [retry: 2]) {
+        echo 'prepare build context'
+        Chaos('build.command') {
+            sh 'make build'
+        }
+    }
+
+    Stage('deploy', [when: new BranchPatternPolicy(patterns: ['main'])]) {
+        sh 'make deploy'
+    }
+}
+```
+
+### If You Did This Without Jent
+
+<details>
+<summary>Show raw scripted pipeline example (without Jent)</summary>
+
+```groovy
+def chaosEnabled = params.CHAOS_ENABLED?.toString()?.toBoolean()
+def chaosPoints = (params.CHAOS_POINTS ?: '')
+        .toString()
+        .split(/[,\s]+/)
+        .findAll { it }
+        .collect { it.trim().toLowerCase() }
+        .toSet()
+
+node {
+    stage('test') {
+        try {
+            sh 'make test'
+        } catch (Exception e) {
+            currentBuild.description = "Failed at stage: test (${e.message ?: e.class.simpleName})"
+            throw e
+        }
+    }
+
+    stage('build') {
+        try {
+            retry(2) {
+                echo 'prepare build context'
+                if (chaosEnabled && chaosPoints.contains('build.command')) {
+                    error('Injected failure at chaos point: build.command')
+                }
+                sh 'make build'
+            }
+        } catch (Exception e) {
+            currentBuild.description = "Failed at stage: build (${e.message ?: e.class.simpleName})"
+            throw e
+        }
+    }
+
+    stage('deploy') {
+        if (env.BRANCH_NAME == 'main') {
+            try {
+                sh 'make deploy'
+            } catch (Exception e) {
+                currentBuild.description = "Failed at stage: deploy (${e.message ?: e.class.simpleName})"
+                echo '[LOG] failedAt=deploy'
+                throw e
+            }
+        } else {
+            catchError(buildResult: 'SUCCESS', stageResult: 'NOT_BUILT') {
+                error('Skipped by branch condition (main only)')
+            }
         }
     }
 }
 ```
 
-Before/after examples:
-- `docs/examples/with-jent.Jenkinsfile`
-- `docs/examples/without-jent.Jenkinsfile`
+</details>
+
+Examples:
+- [Examples Overview](docs/examples/README.md)
 
 ## Features
 
@@ -67,7 +139,7 @@ Before/after examples:
 - `RegisterChaos(policy)` and `Chaos(pointId) { ... }`
 - Verbose logging via `VERBOSE=true`
 
-API reference: `docs/reference.md`
+API reference: [Reference](docs/reference.md)
 
 ## Architecture
 
@@ -76,13 +148,11 @@ Jent runtime state is build-scoped and managed through registries:
 - `FailureRegistryState` -> `FailureRegistryData`
 - `ChaosRegistryState` -> `ChaosRegistryData`
 
-Architecture notes: `docs/architecture.md`
+Architecture notes: [Architecture](docs/architecture.md)
 
 ## Examples
 
-- `docs/examples/README.md`
-- `docs/examples/with-jent.Jenkinsfile`
-- `docs/examples/without-jent.Jenkinsfile`
+- [Examples Overview](docs/examples/README.md)
 
 ## Contributing
 
@@ -91,5 +161,5 @@ Architecture notes: `docs/architecture.md`
 
 ## Release
 
-- Changelog: `CHANGELOG.md`
-- Release process: `docs/release.md`
+- Changelog: [CHANGELOG](CHANGELOG.md)
+- Release process: [Release Process](docs/release.md)
