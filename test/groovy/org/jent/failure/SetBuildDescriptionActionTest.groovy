@@ -63,4 +63,15 @@ class SetBuildDescriptionActionTest {
 
         assert script.currentBuild.description == 'Failed at stage: release (0123456789...)'
     }
+
+    @Test
+    void executeDoesNotTruncateWhenMessageLengthEqualsLimit() {
+        def script = new Expando(currentBuild: new Expando(description: null))
+        def action = new SetBuildDescriptionAction(includeException: true, maxMessageLength: 10)
+        def ctx = new FailureContext(stageId: 'release', exception: new RuntimeException('0123456789'))
+
+        action.execute(script, ctx)
+
+        assert script.currentBuild.description == 'Failed at stage: release (0123456789)'
+    }
 }
