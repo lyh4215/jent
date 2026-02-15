@@ -19,6 +19,10 @@ def notifySlackAction = new FailureAction() {
 OnFailure(notifySlackAction)
 
 node {
+    Stage('Checkout') {
+        checkout scm
+    }
+
     Stage('test') {
         sh 'make test'
     }

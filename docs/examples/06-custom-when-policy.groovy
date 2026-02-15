@@ -17,6 +17,10 @@ def skipCiPolicy = new WhenPolicy() {
 }
 
 node {
+    Stage('Checkout') {
+        checkout scm
+    }
+
     Stage('build') {
         sh 'make build'
     }

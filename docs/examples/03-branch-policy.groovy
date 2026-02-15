@@ -3,6 +3,10 @@
 import org.jent.when.BranchPatternPolicy
 
 node {
+    Stage('Checkout') {
+        checkout scm
+    }
+
     Stage('test') {
         sh 'make test'
     }

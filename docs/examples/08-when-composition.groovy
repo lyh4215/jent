@@ -20,6 +20,10 @@ def deployWhen = When().and([
 ])
 
 node {
+    Stage('Checkout') {
+        checkout scm
+    }
+
     Stage('build') {
         sh 'make build'
     }

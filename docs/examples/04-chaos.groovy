@@ -12,6 +12,10 @@ properties([
 RegisterChaos(new ParameterChaosPolicy())
 
 node {
+    Stage('Checkout') {
+        checkout scm
+    }
+
     Stage('build') {
         Chaos('build.command') {
             sh 'make build'

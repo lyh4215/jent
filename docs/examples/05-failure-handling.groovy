@@ -7,6 +7,10 @@ OnFailure(new SetBuildDescriptionAction(includeException: true, maxMessageLength
 OnFailure('deploy', new FailureLogAction())
 
 node {
+    Stage('Checkout') {
+        checkout scm
+    }
+
     Stage('test') {
         sh 'make test'
     }
