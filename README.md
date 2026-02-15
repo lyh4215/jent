@@ -258,3 +258,10 @@ Treat Jenkins pipelines as a composable execution model:
 - `Chaos` = controlled fault injection
 
 Jent exists to raise the abstraction level of Jenkins Scripted Pipelines while staying practical for real CI/CD operations.
+
+## Release
+
+- Versioning: SemVer (`MAJOR.MINOR.PATCH`)
+- Current baseline: `0.1.0`
+- Changelog: `CHANGELOG.md`
+- Release process: `docs/release.md`

@@ -3,6 +3,9 @@ plugins {
     id 'jacoco'
 }
 
+group = 'org.jent'
+version = '0.1.0'
+
 repositories {
     mavenCentral()
     maven { url 'https://repo.jenkins-ci.org/public/' }
