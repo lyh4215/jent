@@ -10,7 +10,6 @@ abstract class BaseVarsPipelineTest extends BasePipelineTest {
     def onFailureScript
     def registerChaosScript
     def chaosScript
-    def chaosHolderScript
 
     @Before
     @Override
@@ -39,9 +38,6 @@ abstract class BaseVarsPipelineTest extends BasePipelineTest {
             throw new RuntimeException(message)
         }
         helper.registerAllowedMethod('echo', [String]) { String message -> }
-        helper.registerAllowedMethod('ChaosRegistryHolder', []) { ->
-            return chaosHolderScript.call()
-        }
         helper.registerAllowedMethod('parallel', [Map]) { Map branches ->
             def errors = []
             branches.each { _, Closure branch ->
@@ -61,10 +57,9 @@ abstract class BaseVarsPipelineTest extends BasePipelineTest {
         onFailureScript = loadScript('vars/OnFailure.groovy')
         registerChaosScript = loadScript('vars/RegisterChaos.groovy')
         chaosScript = loadScript('vars/Chaos.groovy')
-        chaosHolderScript = loadScript('vars/ChaosRegistryHolder.groovy')
 
         // Ensure every vars script resolves the same build/run key in registry states.
-        def scripts = [stageScript, whenScript, onFailureScript, registerChaosScript, chaosScript, chaosHolderScript]
+        def scripts = [stageScript, whenScript, onFailureScript, registerChaosScript, chaosScript]
         scripts.each { s ->
             def sharedParams = binding.getVariable('params')
             def sharedEnv = binding.getVariable('env')
