@@ -1,10 +1,11 @@
 package org.jent.core.stage
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.jent.core.registry.BaseRegistryState
 import java.util.Collections
 import java.util.WeakHashMap
 
-class StageRegistryState implements Serializable {
+class StageRegistryState extends BaseRegistryState {
 
     private static final Map<Object, StageRegistryData> REGISTRIES =
             Collections.synchronizedMap(new WeakHashMap<Object, StageRegistryData>())
@@ -20,20 +21,11 @@ class StageRegistryState implements Serializable {
 
     @NonCPS
     private static void registerUniqueByKey(Object key, String stageId) {
-        synchronized (REGISTRIES) {
-            StageRegistryData data = REGISTRIES.get(key)
-            if (data == null) {
-                data = new StageRegistryData()
-                REGISTRIES.put(key, data)
-            }
+        StageRegistryData data = getOrCreate(REGISTRIES, key) { new StageRegistryData() }
+        synchronized (data) {
             if (!data.stageIds.add(stageId)) {
                 throw new IllegalArgumentException("Duplicate Stage id detected: '${stageId}'")
             }
         }
-    }
-
-    private static Object resolveRunKey(def script) {
-        Object run = script?.currentBuild?.rawBuild
-        return run ?: script
     }
 }
