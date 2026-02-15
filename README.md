@@ -34,6 +34,10 @@ Jent adds a reusable, type-oriented layer on top of Jenkins syntax:
 
 ## Quick Start (Scripted Pipeline)
 
+More complete side-by-side examples are in `docs/examples`:
+- `docs/examples/with-jent.Jenkinsfile`
+- `docs/examples/without-jent.Jenkinsfile`
+
 ### Without Jent (raw scripted pipeline)
 
 ```groovy
