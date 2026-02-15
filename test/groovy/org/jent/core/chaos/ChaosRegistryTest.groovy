@@ -6,27 +6,27 @@ class ChaosRegistryTest {
 
     @Test
     void maybeFailDoesNothingWhenNoPolicyMatches() {
+        def runtimeScript = new Expando(currentBuild: new Expando(rawBuild: new Object()))
         def policy = [
                 matches: { String pointId, def script -> false },
                 fail: { def script, String pointId -> throw new RuntimeException('should not fail') }
         ] as ChaosPolicy
-        def registry = new ChaosRegistry()
-        registry.register(policy)
+        ChaosRegistry.register(runtimeScript, policy)
 
-        registry.maybeFail(new Expando(), 'deploy')
+        ChaosRegistry.maybeFail(runtimeScript, 'deploy')
     }
 
     @Test
     void maybeFailInvokesFailWhenPolicyMatches() {
+        def runtimeScript = new Expando(currentBuild: new Expando(rawBuild: new Object()))
         def policy = [
                 matches: { String pointId, def script -> pointId == 'deploy' },
                 fail: { def script, String pointId -> throw new ChaosException("boom at ${pointId}") }
         ] as ChaosPolicy
-        def registry = new ChaosRegistry()
-        registry.register(policy)
+        ChaosRegistry.register(runtimeScript, policy)
 
         try {
-            registry.maybeFail(new Expando(), 'deploy')
+            ChaosRegistry.maybeFail(runtimeScript, 'deploy')
             assert false: 'should throw ChaosException'
         } catch (ChaosException e) {
             assert e.message.contains('deploy')
@@ -44,9 +44,8 @@ class ChaosRegistryTest {
                 matches: { String pointId, def s -> false },
                 fail: { def s, String pointId -> }
         ] as ChaosPolicy
-        def registry = new ChaosRegistry()
 
-        registry.register(script, policy)
+        ChaosRegistry.register(script, policy)
 
         assert logs.any { it.contains('registered policy') }
     }
