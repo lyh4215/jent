@@ -1,5 +1,10 @@
 # Jent
 
+[![Test](https://github.com/lyh4215/jent/actions/workflows/test.yml/badge.svg)](https://github.com/lyh4215/jent/actions/workflows/test.yml)
+[![Release](https://img.shields.io/github/v/release/lyh4215/jent)](https://github.com/lyh4215/jent/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/lyh4215/jent/blob/main/LICENSE)
+[![Groovy](https://img.shields.io/badge/language-Groovy-4298B8)](https://groovy-lang.org/)
+
 Type-oriented abstractions for Jenkins Scripted Pipelines.
 
 Jenkins pipelines are powerful, but raw scripted logic quickly becomes noisy.
