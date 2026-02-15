@@ -1,5 +1,7 @@
 package org.jent.vars
 
+import org.jent.core.failure.FailureAction
+import org.jent.core.failure.FailureContext
 import org.jent.failure.FailureLogAction
 import org.junit.Test
 
@@ -22,5 +24,36 @@ class StageWithFailureTest extends BaseVarsPipelineTest {
         assert helper.callStack.find { call ->
             call.methodName == 'echo' && call.argsToString().contains('[LOG] failedAt=deploy')
         }
+    }
+
+    @Test
+    void sharedGlobalOnFailureActionRunsForBothFailedParallelStages() {
+        def invocations = []
+        FailureAction action = new FailureAction() {
+            @Override
+            void execute(def script, FailureContext ctx) {
+                invocations << ctx.stageId
+            }
+        }
+
+        onFailureScript.call(action)
+
+        try {
+            stageScript.parallel(
+                    left: {
+                        stageScript.call('left') { throw new RuntimeException('left failed') }
+                    },
+                    right: {
+                        stageScript.call('right') { throw new RuntimeException('right failed') }
+                    }
+            )
+            assert false: 'parallel should fail when branches fail'
+        } catch (RuntimeException ignored) {
+            // expected
+        }
+
+        assert invocations.size() == 2
+        assert invocations.contains('left')
+        assert invocations.contains('right')
     }
 }

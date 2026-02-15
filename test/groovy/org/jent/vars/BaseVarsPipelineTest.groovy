@@ -42,6 +42,19 @@ abstract class BaseVarsPipelineTest extends BasePipelineTest {
         helper.registerAllowedMethod('ChaosRegistryHolder', []) { ->
             return chaosHolderScript.call()
         }
+        helper.registerAllowedMethod('parallel', [Map]) { Map branches ->
+            def errors = []
+            branches.each { _, Closure branch ->
+                try {
+                    branch.call()
+                } catch (Exception e) {
+                    errors << e
+                }
+            }
+            if (!errors.isEmpty()) {
+                throw errors[0]
+            }
+        }
 
         stageScript = loadScript('vars/Stage.groovy')
         whenScript = loadScript('vars/When.groovy')
@@ -49,5 +62,23 @@ abstract class BaseVarsPipelineTest extends BasePipelineTest {
         registerChaosScript = loadScript('vars/RegisterChaos.groovy')
         chaosScript = loadScript('vars/Chaos.groovy')
         chaosHolderScript = loadScript('vars/ChaosRegistryHolder.groovy')
+
+        // Ensure every vars script resolves the same build/run key in registry states.
+        def scripts = [stageScript, whenScript, onFailureScript, registerChaosScript, chaosScript, chaosHolderScript]
+        scripts.each { s ->
+            def sharedParams = binding.getVariable('params')
+            def sharedEnv = binding.getVariable('env')
+            def sharedCurrentBuild = binding.getVariable('currentBuild')
+
+            s.binding.setVariable('params', sharedParams)
+            s.binding.setVariable('env', sharedEnv)
+            s.binding.setVariable('currentBuild', sharedCurrentBuild)
+
+            // Force direct script-property alignment to keep registry run-key resolution consistent.
+            s.setProperty('params', sharedParams)
+            s.setProperty('env', sharedEnv)
+            s.setProperty('currentBuild', sharedCurrentBuild)
+            s.metaClass.getCurrentBuild = { -> sharedCurrentBuild }
+        }
     }
 }
