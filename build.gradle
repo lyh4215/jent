@@ -32,7 +32,7 @@ jacoco {
 }
 
 tasks.named('test') {
-    finalizedBy tasks.named('jacocoTestReport')
+    finalizedBy tasks.named('jacocoTestReport'), tasks.named('jacocoTestCoverageVerification')
 }
 
 tasks.named('jacocoTestReport') {
@@ -42,4 +42,27 @@ tasks.named('jacocoTestReport') {
         csv.required = false
         html.required = true
     }
+}
+
+tasks.named('jacocoTestCoverageVerification') {
+    dependsOn tasks.named('test')
+    violationRules {
+        rule {
+            element = 'BUNDLE'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.60
+            }
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.45
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('jacocoTestCoverageVerification')
 }
