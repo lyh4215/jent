@@ -1,0 +1,29 @@
+Stage step for Jent Scripted Pipelines.
+
+Usage:
+  Stage(String id, Map opts = [:], Closure body)
+
+Parameters:
+  id
+    Unique stage id in the current build.
+    Duplicate ids throw IllegalArgumentException.
+
+  opts.retry (optional, default: 1)
+    Retry count for the stage body.
+
+  opts.when (optional)
+    A WhenPolicy class or instance.
+    If policy does not allow execution, the stage is marked NOT_BUILT.
+
+Behavior:
+  - Evaluates opts.when before running body.
+  - Executes body with retry wrapper.
+  - ChaosException is not retried.
+  - On any failure, registered OnFailure handlers run and the exception is re-thrown.
+
+Example:
+  import org.jent.when.ParamFlagPolicy
+
+  Stage('Build', [retry: 2, when: new ParamFlagPolicy(paramName: 'RUN_STAGE', expectedValue: 'build')]) {
+      echo 'build...'
+  }
