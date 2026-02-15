@@ -10,14 +10,14 @@ abstract class BaseRegistryState implements Serializable {
     }
 
     @NonCPS
-    protected static <T> T getOrCreate(Map<Object, T> registries, Object key, Closure<T> creator) {
+    protected static <T> T getOrCreate(Map<Object, T> registries, Object key, Class<T> dataClass) {
         synchronized (registries) {
             T existing = registries.get(key)
             if (existing != null) {
                 return existing
             }
 
-            T created = creator.call()
+            T created = dataClass.newInstance()
             registries.put(key, created)
             return created
         }

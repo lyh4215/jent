@@ -21,7 +21,7 @@ class StageRegistryState extends BaseRegistryState {
 
     @NonCPS
     private static void registerUniqueByKey(Object key, String stageId) {
-        StageRegistryData data = getOrCreate(REGISTRIES, key) { new StageRegistryData() }
+        StageRegistryData data = getOrCreate(REGISTRIES, key, StageRegistryData)
         synchronized (data) {
             if (!data.stageIds.add(stageId)) {
                 throw new IllegalArgumentException("Duplicate Stage id detected: '${stageId}'")

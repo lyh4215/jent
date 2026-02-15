@@ -11,6 +11,6 @@ class FailureRegistryState extends BaseRegistryState {
 
     static FailureRegistryData get(def script) {
         Object key = resolveRunKey(script)
-        return getOrCreate(REGISTRIES, key) { new FailureRegistryData() }
+        return getOrCreate(REGISTRIES, key, FailureRegistryData)
     }
 }

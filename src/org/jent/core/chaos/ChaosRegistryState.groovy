@@ -11,7 +11,7 @@ class ChaosRegistryState extends BaseRegistryState {
 
     static ChaosRegistryData get(def script) {
         Object key = resolveRunKey(script)
-        return getOrCreate(REGISTRIES, key) { new ChaosRegistryData() }
+        return getOrCreate(REGISTRIES, key, ChaosRegistryData)
     }
 
     static String currentBuildRef(def script) {
