@@ -24,21 +24,7 @@ If you find Jent useful, please consider giving this repository a star. It helps
 - A constrained implementation model that promotes team-wide format consistency, long-term maintainability, and scalable project evolution
 
 ## Install
-
-1. Configure this repository as a Jenkins Shared Library (for example, `jent`) in Jenkins global settings.
-2. Load the library in your scripted pipeline:
-
-```groovy
-@Library('jent@main') _
-```
-
-Recommended for production stability:
-
-```groovy
-@Library('jent@v0.1.0') _
-```
-
-Install details: [Install Guide](docs/install.md)
+[Install Guide](docs/install.md)
 
 ## Quick Start
 
