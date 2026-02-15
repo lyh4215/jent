@@ -1,23 +1,27 @@
-# Jent — Pipeline DSL for Jenkins
+<h1 align="center">Jent</h1>
 
 [![Test](https://github.com/lyh4215/jent/actions/workflows/test.yml/badge.svg)](https://github.com/lyh4215/jent/actions/workflows/test.yml)
 [![Release](https://img.shields.io/github/v/release/lyh4215/jent)](https://github.com/lyh4215/jent/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/lyh4215/jent/blob/main/LICENSE)
 [![Groovy](https://img.shields.io/badge/language-Groovy-4298B8)](https://groovy-lang.org/)
 
-Jent adds a higher-level, type-oriented abstraction on top of Jenkins Scripted Pipelines so teams can reduce boilerplate and express retry, failure handling, and chaos injection consistently.
+Write Jenkins Scripted Pipelines like a framework, not a pile of boilerplate.
+
+If you find Jent useful, please consider giving this repository a star. It helps a lot.
 
 ## Overview
 
-Problem:
+### Problem
 - Jenkinsfiles become noisy and hard to maintain.
 - Condition/retry/failure logic gets scattered.
 - Teams repeatedly reimplement similar patterns.
+- Different implementation styles across people make collaboration and review harder.
 
-Solution:
+### Solution
 - Composable primitives: `Stage`, `When`, `Retry`, `OnFailure`, `Chaos`
 - Build-scoped internal registry state
 - Reusable policy/action abstractions for consistent pipeline behavior
+- A constrained implementation model that promotes team-wide format consistency, long-term maintainability, and scalable project evolution
 
 ## Install
 
@@ -28,9 +32,32 @@ Solution:
 @Library('jent@main') _
 ```
 
+Recommended for production stability:
+
+```groovy
+@Library('jent@v0.1.0') _
+```
+
 Install details: [Install Guide](docs/install.md)
 
 ## Quick Start
+
+```groovy
+@Library('jent@main') _
+
+node {
+    Stage('build') {
+        sh 'make build'
+    }
+}
+```
+
+## With Jent vs Without Jent
+
+<details>
+<summary>Show full comparison example</summary>
+
+### With Jent
 
 ```groovy
 @Library('jent@main') _
@@ -69,10 +96,7 @@ node {
 }
 ```
 
-### If You Did This Without Jent
-
-<details>
-<summary>Show raw scripted pipeline example (without Jent)</summary>
+### Without Jent (Raw Scripted Pipeline)
 
 ```groovy
 def chaosEnabled = params.CHAOS_ENABLED?.toString()?.toBoolean()
@@ -128,11 +152,18 @@ node {
 
 </details>
 
-Examples:
-- [Examples Overview](docs/examples/README.md)
+## What You Get
 
-## Features
+- Deterministic stage execution policies
+- Centralized failure handling
+- Composable condition logic
+- Built-in chaos testing hooks
+- Build-scoped state isolation
+- Less Jenkinsfile boilerplate
+- Team-wide implementation consistency
+- Better project sustainability and extensibility as pipelines grow
 
+Core APIs:
 - `Stage(id, opts, body)` with `when` and `retry`
 - `When()` operations: `of`, `and`, `or`, `not`
 - `OnFailure(stageId, action)` and global `OnFailure(action)`
@@ -148,6 +179,8 @@ Jent runtime state is build-scoped and managed through registries:
 - `FailureRegistryState` -> `FailureRegistryData`
 - `ChaosRegistryState` -> `ChaosRegistryData`
 
+Jent avoids unmanaged global runtime state by binding registry data to the Jenkins build lifecycle.
+
 Architecture notes: [Architecture](docs/architecture.md)
 
 ## Examples
@@ -156,8 +189,8 @@ Architecture notes: [Architecture](docs/architecture.md)
 
 ## Contributing
 
-- Run tests locally: `gradle test`
-- Coverage gate is enforced in CI (JaCoCo)
+Bug reports, feature ideas, and discussions are welcome.
+If Jent helps your pipeline design, a star would mean a lot.
 
 ## Release
 
