@@ -1,0 +1,16 @@
+Chaos execution point wrapper.
+
+Usage:
+  Chaos(String pointId) { ... }
+
+Behavior:
+  - Evaluates registered chaos policies for pointId.
+  - If a policy matches, it injects failure (typically ChaosException).
+  - If no policy matches, executes the body closure.
+
+Typical setup:
+  RegisterChaos(new ParameterChaosPolicy())
+
+  Chaos('deploy.before') {
+      echo 'deploying...'
+  }

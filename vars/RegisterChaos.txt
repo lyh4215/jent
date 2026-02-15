@@ -1,0 +1,13 @@
+Register a chaos policy in the current build context.
+
+Usage:
+  RegisterChaos(ChaosPolicy policy)
+
+Behavior:
+  - Adds the policy to the build-scoped chaos registry.
+  - Registered policies are evaluated by Chaos(pointId) calls.
+
+Example:
+  import org.jent.chaos.ParameterChaosPolicy
+
+  RegisterChaos(new ParameterChaosPolicy())

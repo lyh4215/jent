@@ -1,0 +1,28 @@
+When operation builder for Jent policies.
+
+Usage:
+  def w = When()
+
+Operations:
+  w.of(Object policy)
+    Resolve a policy class or instance to WhenPolicy.
+
+  w.and(List policies)
+    Returns AndPolicy. All policies must allow.
+
+  w.or(List policies)
+    Returns OrPolicy. Any policy can allow.
+
+  w.not(Object policy)
+    Returns NotPolicy. Inverts the policy result.
+
+Examples:
+  import org.jent.when.BranchPatternPolicy
+  import org.jent.when.ParamFlagPolicy
+
+  def onlyMain = When().of(new BranchPatternPolicy(patterns: ['main']))
+
+  def deployWhen = When().and([
+      new BranchPatternPolicy(patterns: ['main', 'release/*']),
+      When().not(new ParamFlagPolicy(paramName: 'SKIP_DEPLOY', expectedValue: true))
+  ])

@@ -1,0 +1,25 @@
+Register failure handlers for stage failures.
+
+Usage:
+  OnFailure(String stageId, Object action)   // stage-specific
+  OnFailure(Object action)                   // global
+
+Parameters:
+  stageId
+    Stage id used in Stage('...').
+
+  action
+    FailureAction instance or class.
+    If a class is provided, it is instantiated with a no-arg constructor.
+
+Behavior:
+  - Stage-specific handlers run for the matching stage.
+  - Global handlers run for every stage failure.
+  - Handlers are build-scoped via internal registry state.
+
+Examples:
+  import org.jent.failure.FailureLogAction
+  import org.jent.failure.SetBuildDescriptionAction
+
+  OnFailure('Deploy', new FailureLogAction())
+  OnFailure(SetBuildDescriptionAction)
