@@ -5,10 +5,12 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.jenkins-ci.org/public/' }
 }
 
 dependencies {
     implementation localGroovy()
+    compileOnly 'com.cloudbees:groovy-cps:4014.vcd7dc51d8b_30'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.lesfurets:jenkins-pipeline-unit:1.1'
