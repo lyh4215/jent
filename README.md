@@ -12,16 +12,15 @@ If you find Jent useful, please consider giving this repository a star. It helps
 ## Overview
 
 ### Problem
-- Jenkinsfiles become noisy and hard to maintain.
-- Condition/retry/failure logic gets scattered.
-- Teams repeatedly reimplement similar patterns.
-- Different implementation styles across people make collaboration and review harder.
+- Scripted pipelines with dynamic flow often end up with ad-hoc per-stage exception handling.
+- Failure behavior is frequently coupled to local stage code instead of a shared, stage-identity model.
+- As workflows grow, policy composition (branch + params + runtime signals) becomes hard to standardize.
 
 ### Solution
-- Composable primitives: `Stage`, `When`, `Retry`, `OnFailure`, `Chaos`
-- Build-scoped internal registry state
-- Reusable policy/action abstractions for consistent pipeline behavior
-- A constrained implementation model that promotes team-wide format consistency, long-term maintainability, and scalable project evolution
+- Stage IDs are registered in a build-scoped registry and treated as stable hook points.
+- Failure hooks are attached by stage ID (`OnFailure('id', action)`), not by scattered local `catch` blocks.
+- Failure is modeled as a semantic event (stage identity + context), not just a raw exception.
+- `When` is composable with explicit `and` / `or` / `not` operators for complex scripted conditions.
 
 ## Install
 [Install Guide](docs/install.md)
@@ -148,14 +147,12 @@ node {
 
 ## What You Get
 
-- Deterministic stage execution policies
-- Centralized failure handling
-- Composable condition logic
-- Built-in chaos testing hooks
-- Build-scoped state isolation
-- Less Jenkinsfile boilerplate
-- Team-wide implementation consistency
-- Better project sustainability and extensibility as pipelines grow
+- ID-based hook architecture for stage lifecycle and failure routing
+- Stage-scoped and global failure hooks by identity (`OnFailure('id', ...)`, `OnFailure(...)`)
+- Composable scripted conditions (`When().and(...)`, `When().or(...)`, `When().not(...)`)
+- Runtime fault-injection hooks bound to explicit execution points (`Chaos('point')`)
+- Build-scoped registry state for deterministic behavior across nodes/stages
+- A consistent model for large scripted pipelines where declarative-style static structure is not enough
 
 Core APIs:
 - `Stage(id, opts, body)` with `when` and `retry`
